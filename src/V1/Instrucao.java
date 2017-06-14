@@ -1,7 +1,7 @@
 package V1;
 
 public class Instrucao{
-	String inst;
+	private String inst;
 	Instrucao(String a){
 		inst = a;
 	}

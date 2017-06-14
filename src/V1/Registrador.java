@@ -1,8 +1,8 @@
 package V1;
 
 public class Registrador {
-	int valor;
-	int Qi, Vi;
+	private int valor;
+	private int Qi, Vi;
 	public int getValor() {
 		return valor;
 	}
@@ -11,5 +11,8 @@ public class Registrador {
 	}
 	public int getVi() {
 		return Vi;
+	}
+	public void setValor(int i) {
+		valor = i;
 	}
 }
