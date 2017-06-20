@@ -89,6 +89,7 @@ public class MIPSV2 {
 	}
 	
 	/* Função que pega uma instrução e manda para a estação de reserva adequada se possível */
+	
 	private static void emitir () {
 		
 		Instrucao instAux = filaDeInstrucoes.get(PC);
@@ -106,7 +107,10 @@ public class MIPSV2 {
 		int regRT = Integer.parseInt(rt,2);
 		int regRS = Integer.parseInt(rs,2); 
 		int tA = Integer.parseInt(targetAddress,2);
-		int decImm = Integer.parseInt(immediate,2); /* complemento de dois */
+		int decImm = Integer.parseInt(immediate.substring(1),2);
+		if(immediate.charAt(0)=='1'){
+			decImm = decImm*(-1);
+		}
 		
 		switch(opcode){
 		//Instrução tipo R

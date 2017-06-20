@@ -12,7 +12,7 @@ public class MIPS {
 		Registrador[] Registradores = new Registrador[32];
 		for(int i = 0; i<32; i++){
 			Registradores[i] = new Registrador();
-			Registradores[i].setValor(0);
+			Registradores[i].setVi(0);
 		}
 		for(int i=0;i<4096;i++){
 			MEM[i]=0;
@@ -76,19 +76,19 @@ public class MIPS {
 					//Função Add
 					case "100000":
 						System.out.println("add R"+regRD+",R"+regRS+",R"+regRT);
-						Registradores[regRD].setValor(Registradores[regRS].getValor() + Registradores[regRT].getValor());
+						Registradores[regRD].setVi(Registradores[regRS].getVi() + Registradores[regRT].getVi());
 						PC+=4;
 						break;
 					//Função Mul
 					case "011000":
 						System.out.println("mul R"+regRD+",R"+regRS+",R"+regRT);
-						Registradores[regRD].setValor(Registradores[regRS].getValor() * Registradores[regRT].getValor());
+						Registradores[regRD].setVi(Registradores[regRS].getVi() * Registradores[regRT].getVi());
 						PC+=4;
 						break;
 					//Função Sub
 					case "100010":
 						System.out.println("sub R"+regRD+",R"+regRS+",R"+regRT);
-						Registradores[regRD].setValor(Registradores[regRS].getValor() - Registradores[regRT].getValor());
+						Registradores[regRD].setVi(Registradores[regRS].getVi() - Registradores[regRT].getVi());
 						PC+=4;
 						break;
 					//Função Nop
@@ -101,14 +101,14 @@ public class MIPS {
 			//Instrução Addi
 			case "001000":
 				System.out.println("addi R"+regRT+",R"+regRS+","+decImm);
-				Registradores[regRT].setValor(Registradores[regRS].getValor()+decImm);
+				Registradores[regRT].setVi(Registradores[regRS].getVi()+decImm);
 				PC+=4;
 				break;
 			//Instrução Beq
 			case "000101":
 				System.out.println("beq R"+regRT+",R"+regRS+","+decImm);
 				PC+=4;
-				if(Registradores[regRS].getValor()==Registradores[regRT].getValor()){
+				if(Registradores[regRS].getVi()==Registradores[regRT].getVi()){
 					PC += decImm;
 				}
 				break;
@@ -116,7 +116,7 @@ public class MIPS {
 			case "000111":
 				System.out.println("ble R"+regRT+",R"+regRS+","+decImm);
 				PC+=4;
-				if(Registradores[regRS].getValor()<=Registradores[regRT].getValor()){
+				if(Registradores[regRS].getVi()<=Registradores[regRT].getVi()){
 					PC = decImm;
 				}
 				break;
@@ -124,7 +124,7 @@ public class MIPS {
 			case "000100":
 				System.out.println("bne R"+regRT+",R"+regRS+","+decImm);
 				PC+=4;
-				if(Registradores[regRS].getValor()!=Registradores[regRT].getValor()){
+				if(Registradores[regRS].getVi()!=Registradores[regRT].getVi()){
 					PC+=decImm;
 				}
 				break;
@@ -137,13 +137,13 @@ public class MIPS {
 			case "100011":
 				System.out.println("lw R"+regRT+","+decImm+"(R"+regRS+")");
 				PC+=4;
-				Registradores[regRT].setValor(MEM[Registradores[regRS].getValor()+decImm]);
+				Registradores[regRT].setVi(MEM[Registradores[regRS].getVi()+decImm]);
 				break;
 			//Instrução Sw
 			case "101011":
 				System.out.println("sw R"+regRT+","+decImm+"(R"+regRS+")");
 				PC+=4;
-				MEM[Registradores[regRS].getValor()+decImm] =Registradores[regRT].getValor();
+				MEM[Registradores[regRS].getVi()+decImm] =Registradores[regRT].getVi();
 				break;
 			default:
 				System.out.println("Comando não interpretado!!!");
@@ -152,7 +152,7 @@ public class MIPS {
 			
 		}
 		
-		System.out.println("Valor de R2 = "+Registradores[2].getValor());
+		System.out.println("Valor de R2 = "+Registradores[2].getVi());
 			
 	}
 
