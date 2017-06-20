@@ -7,7 +7,14 @@ public class celulaDeReordenacao {
 	private String estado;
 	private int destino;
 	private int valor;
+	private int tempoDeExecucao;
 	
+	public int getTempoDeExecucao() {
+		return tempoDeExecucao;
+	}
+	public void setTempoDeExecucao(int tempoDeExecucao) {
+		this.tempoDeExecucao = tempoDeExecucao;
+	}
 	public boolean isBusy() { return busy; }
 	public void setBusy(boolean busy) { this.busy = busy; }
 	public Instrucao getInstrucao() {

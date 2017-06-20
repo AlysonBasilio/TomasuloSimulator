@@ -204,9 +204,18 @@ public class MIPS {
 		
 	}
 	
-	private void executar () {}
+	private static void executar () {}
 	
+	private static void gravar() {
+		// TODO Auto-generated method stub
+		
+	}
 	
+	private static void consolidar() {
+		// TODO Auto-generated method stub
+		
+	}
+
 	
 	public static void main(String[] args) {
 		
@@ -258,6 +267,9 @@ public class MIPS {
 		
 		while(filaDeInstrucoes.containsKey(PC)){
 			emitir ();
+			executar ();
+			gravar ();
+			consolidar ();
 			clock++;
 		}
 		
@@ -265,5 +277,5 @@ public class MIPS {
 		System.out.println("Valor de R2 = "+ registradores[2].getVi());
 		
 	}
-	
+
 }

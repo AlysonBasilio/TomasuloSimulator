@@ -20,6 +20,14 @@ public class BufferDeReordenacao {
 			buffer[posic].setEstado("Emitida");
 			buffer[posic].setInstrucao(inst);
 			buffer[posic].setDestino(dest);
+			String opcode = inst.getInstrucao().substring(0, 6);
+			String funct = inst.getInstrucao().substring(26);
+			if(opcode == "100011" || opcode == "101011")
+				buffer[posic].setTempoDeExecucao(4);
+			else if (opcode == "000000" && funct == "011000")
+				buffer[posic].setTempoDeExecucao(3);
+			else
+				buffer[posic].setTempoDeExecucao(1);
 			posic = (posic+1)%buffer.length;
 	}
 	
