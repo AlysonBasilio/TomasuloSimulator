@@ -128,22 +128,44 @@ public class MIPS {
 							somaFP[indice].setQj(registradores[regRS].getVi());
 						if (registradores[regRT].getQi() == "livre")
 							somaFP[indice].setQk(registradores[regRT].getVi());
+						PC+=4;
 					}
 					System.out.println("add R"+regRD+",R"+regRS+",R"+regRT);
 					registradores[regRD].setVi(registradores[regRS].getVi() + registradores[regRT].getVi());
-					PC+=4;
 					break;
 				//Função Mul
 				case "011000":
+					indice = verificaEstacao ("Mult");
+					if(indice != -1 && !buffer.isFull()) { 
+						multFP[indice].setBusy(true);
+						multFP[indice].setInst("Mul");
+						multFP[indice].setDest(buffer.getPosic());
+						buffer.adicionaNoBuffer(instAux, regRD);
+						if (registradores[regRS].getQi() == "livre")
+							multFP[indice].setQj(registradores[regRS].getVi());
+						if (registradores[regRT].getQi() == "livre")
+							multFP[indice].setQk(registradores[regRT].getVi());
+						PC+=4;
+					}
 					System.out.println("mul R"+regRD+",R"+regRS+",R"+regRT);
 					registradores[regRD].setVi(registradores[regRS].getVi() * registradores[regRT].getVi());
-					PC+=4;
 					break;
 				//Função Sub
 				case "100010":
+					indice = verificaEstacao ("Add");
+					if(indice != -1 && !buffer.isFull()) { 
+						somaFP[indice].setBusy(true);
+						somaFP[indice].setInst("Sub");
+						somaFP[indice].setDest(buffer.getPosic());
+						buffer.adicionaNoBuffer(instAux, regRD);
+						if (registradores[regRS].getQi() == "livre")
+							somaFP[indice].setQj(registradores[regRS].getVi());
+						if (registradores[regRT].getQi() == "livre")
+							somaFP[indice].setQk(registradores[regRT].getVi());
+						PC+=4;
+					}
 					System.out.println("sub R"+regRD+",R"+regRS+",R"+regRT);
 					registradores[regRD].setVi(registradores[regRS].getVi() - registradores[regRT].getVi());
-					PC+=4;
 					break;
 				//Função Nop
 				case "000000":
@@ -154,9 +176,19 @@ public class MIPS {
 			break;
 		//Instrução Addi
 		case "001000":
+			indice = verificaEstacao ("Add");
+			if(indice != -1 && !buffer.isFull()) { 
+				somaFP[indice].setBusy(true);
+				somaFP[indice].setInst("Addi");
+				somaFP[indice].setDest(buffer.getPosic());
+				buffer.adicionaNoBuffer(instAux, regRT);
+				if (registradores[regRS].getQi() == "livre")
+					somaFP[indice].setQj(registradores[regRS].getVi());
+				somaFP[indice].setQk(decImm);
+				PC+=4;
+			}
 			System.out.println("addi R"+regRT+",R"+regRS+","+decImm);
 			registradores[regRT].setVi(registradores[regRS].getVi()+decImm);
-			PC+=4;
 			break;
 		//Instrução Beq
 		case "000101":
