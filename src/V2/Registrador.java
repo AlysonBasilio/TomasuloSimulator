@@ -2,11 +2,11 @@ package V2;
 
 public class Registrador {
 	private int Vi;
-	private String Qi;
+	private int Qi;
 	
-	public String getQi() { return Qi; }
+	public int getQi() { return Qi; }
 	
-	public void setQi(String qi) { this.Qi = qi; }
+	public void setQi(int qi) { this.Qi = qi; }
 	
 	public int getVi() { return Vi; }
 	

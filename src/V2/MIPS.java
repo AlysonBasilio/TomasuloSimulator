@@ -8,7 +8,7 @@ import java.util.HashMap;
 
 public class MIPS {
 	
-	private String barramentoDeDadosComum;
+	private static Barramento barramentoDeDadosComum;
 	
 	/* Estações de reserva */
 	private static EstacaoDeReserva[] somaFP;
@@ -124,10 +124,15 @@ public class MIPS {
 						somaFP[indice].setInst("Add");
 						somaFP[indice].setDest(buffer.getPosic());
 						buffer.adicionaNoBuffer(instAux, regRD);
-						if (registradores[regRS].getQi() == "livre")
-							somaFP[indice].setQj(registradores[regRS].getVi());
-						if (registradores[regRT].getQi() == "livre")
-							somaFP[indice].setQk(registradores[regRT].getVi());
+						if (registradores[regRS].getQi() == -1)
+							somaFP[indice].setVj(registradores[regRS].getVi());
+						else
+							somaFP[indice].setQj(registradores[regRS].getQi());	
+						if (registradores[regRT].getQi() == -1)
+							somaFP[indice].setVk(registradores[regRT].getVi());
+						else
+							somaFP[indice].setQk(registradores[regRT].getQi());
+						registradores[regRD].setQi(somaFP[indice].getDest());
 						PC+=4;
 					}
 					System.out.println("add R"+regRD+",R"+regRS+",R"+regRT);
@@ -141,9 +146,9 @@ public class MIPS {
 						multFP[indice].setInst("Mul");
 						multFP[indice].setDest(buffer.getPosic());
 						buffer.adicionaNoBuffer(instAux, regRD);
-						if (registradores[regRS].getQi() == "livre")
+						if (registradores[regRS].getQi() == -1)
 							multFP[indice].setQj(registradores[regRS].getVi());
-						if (registradores[regRT].getQi() == "livre")
+						if (registradores[regRT].getQi() == -1)
 							multFP[indice].setQk(registradores[regRT].getVi());
 						PC+=4;
 					}
@@ -158,9 +163,9 @@ public class MIPS {
 						somaFP[indice].setInst("Sub");
 						somaFP[indice].setDest(buffer.getPosic());
 						buffer.adicionaNoBuffer(instAux, regRD);
-						if (registradores[regRS].getQi() == "livre")
+						if (registradores[regRS].getQi() == -1)
 							somaFP[indice].setQj(registradores[regRS].getVi());
-						if (registradores[regRT].getQi() == "livre")
+						if (registradores[regRT].getQi() == -1)
 							somaFP[indice].setQk(registradores[regRT].getVi());
 						PC+=4;
 					}
@@ -182,7 +187,7 @@ public class MIPS {
 				somaFP[indice].setInst("Addi");
 				somaFP[indice].setDest(buffer.getPosic());
 				buffer.adicionaNoBuffer(instAux, regRT);
-				if (registradores[regRS].getQi() == "livre")
+				if (registradores[regRS].getQi() == -1)
 					somaFP[indice].setQj(registradores[regRS].getVi());
 				somaFP[indice].setQk(decImm);
 				PC+=4;
@@ -258,6 +263,8 @@ public class MIPS {
 		PC = 0;
 		
 		buffer = new BufferDeReordenacao (6);
+		
+		barramentoDeDadosComum = new Barramento ();
 		
 		somaFP = new EstacaoDeReserva[5];
 		multFP = new EstacaoDeReserva[5];
