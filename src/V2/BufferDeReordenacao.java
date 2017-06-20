@@ -22,16 +22,16 @@ public class BufferDeReordenacao {
 			buffer[posic].setDestino(dest);
 			String opcode = inst.getInstrucao().substring(0, 6);
 			String funct = inst.getInstrucao().substring(26);
-			if(opcode == "100011" || opcode == "101011")
+			if(opcode == "100011" || opcode == "101011")		//Load/Store
 				buffer[posic].setTempoDeExecucao(4);
-			else if (opcode == "000000" && funct == "011000")
+			else if (opcode == "000000" && funct == "011000")	//Mult
 				buffer[posic].setTempoDeExecucao(3);
-			else
+			else 												//Outros
 				buffer[posic].setTempoDeExecucao(1);
 			posic = (posic+1)%buffer.length;
 	}
 	
-	public int getPosic () { return posic; }
+	public int getPosic () { return posic;}
 	
 	public boolean isFull () {
 		if ( numCelulasOcupadas == buffer.length)

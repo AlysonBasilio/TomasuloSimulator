@@ -126,6 +126,8 @@ public class MIPS {
 						buffer.adicionaNoBuffer(instAux, regRD);
 						if (registradores[regRS].getQi() == "livre")
 							somaFP[indice].setQj(registradores[regRS].getVi());
+						if (registradores[regRT].getQi() == "livre")
+							somaFP[indice].setQk(registradores[regRT].getVi());
 					}
 					System.out.println("add R"+regRD+",R"+regRS+",R"+regRT);
 					registradores[regRD].setVi(registradores[regRS].getVi() + registradores[regRT].getVi());
@@ -230,17 +232,17 @@ public class MIPS {
 		cargaFP = new EstacaoDeReserva[5];
 		for(int i = 0; i<5; i++){
 			somaFP[i] = new EstacaoDeReserva ();
-			somaFP[i].Busy = false;
-			somaFP[i].Tipo = "Add";
-			somaFP[i].ID = "Add" + i;
+			somaFP[i].setBusy(false);
+			somaFP[i].setTipo("Add");
+			somaFP[i].setID("Add" + i);
 			multFP[i] = new EstacaoDeReserva ();
-			multFP[i].Busy = false;
-			multFP[i].Tipo = "Mult";
-			multFP[i].ID = "Mul" + i;
+			multFP[i].setBusy(false);
+			multFP[i].setTipo("Mult");
+			multFP[i].setID("Mul" + i);
 			cargaFP[i] = new EstacaoDeReserva ();
-			cargaFP[i].Busy = false;
-			cargaFP[i].Tipo = "Load/Store";
-			cargaFP[i].ID = "L/S" + i;
+			cargaFP[i].setBusy(false);
+			cargaFP[i].setTipo("Load/Store");
+			cargaFP[i].setID("L/S" + i);
 		}
 		numElemSoma = 0;
 		numElemMult = 0;
