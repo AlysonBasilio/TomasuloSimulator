@@ -2,11 +2,13 @@ package V1;
 
 public class Instrucao{
 	private String inst;
+	
 	Instrucao(String a){
-		inst = a;
+		this.inst = a;
 	}
 	public String getInstrucao() {
-		// TODO Auto-generated method stub
 		return inst;
 	}
 }
+
+/* Garantir que instrução tenha 32 caracteres e seja formada apenas por zeros e uns */
