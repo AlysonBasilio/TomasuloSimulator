@@ -1,4 +1,4 @@
-package V1;
+package V2;
 
 public class Instrucao{
 	private String inst;
