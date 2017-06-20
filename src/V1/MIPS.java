@@ -51,7 +51,7 @@ public class MIPS {
 		//Nessa primeira versão vamos começar programando um processador que executa 
 		//as instruções sequencialmente
 		
-		while(!FilaDeInstrucoes.isEmpty()){
+		while(FilaDeInstrucoes.containsKey(PC)){
 			System.out.print("PC = "+PC+" -> ");
 			Instrucao i = FilaDeInstrucoes.get(PC);
 			
