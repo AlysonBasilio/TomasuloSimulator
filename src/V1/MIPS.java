@@ -2,14 +2,13 @@ package V1;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.HashMap;
 
 public class MIPS {
 
 	public static void main(String[] args) {
 		int[] MEM = new int[4096];
-		Queue<Instrucao> FilaDeInstrucoes = new LinkedList<Instrucao>();
+		HashMap<Integer,Instrucao> FilaDeInstrucoes = new HashMap<Integer,Instrucao>();
 		Registrador[] Registradores = new Registrador[32];
 		for(int i = 0; i<32; i++){
 			Registradores[i] = new Registrador();
@@ -27,8 +26,11 @@ public class MIPS {
 		/*Configuração 3*/
 		//Registradores[1].setValor(6);
 		
+		//Inicialização de PC:
+		int PC = 0;
+		
 		//Leitura do arquivo de entrada e preenchimento da fila.
-	    
+	    		
 		try {
 	    	FileReader arq = new FileReader(nome);
 	    	BufferedReader lerArq = new BufferedReader(arq);
@@ -36,7 +38,8 @@ public class MIPS {
 	    	String instAux = lerArq.readLine(); // lê a primeira instrução
 	    	while (instAux != null) {
 	    		Instrucao in = new Instrucao(instAux.split(" ")[0]);
-	    		FilaDeInstrucoes.add(in);
+	    		FilaDeInstrucoes.put(PC, in);
+	    		PC+=4;
 	    		//System.out.printf("%s\n", in.getInstrucao());
 	    		instAux = lerArq.readLine(); // lê da segunda até a última linha
 	    	} 
@@ -44,16 +47,13 @@ public class MIPS {
 	    } catch (IOException e) {
 	        System.err.printf("Erro na abertura do arquivo: %s.\n", e.getMessage());
 	    }
-		
+		PC = 0;
 		//Nessa primeira versão vamos começar programando um processador que executa 
 		//as instruções sequencialmente
 		
-		//Inicialização de PC:
-		int PC = 0;
-		
 		while(!FilaDeInstrucoes.isEmpty()){
 			System.out.print("PC = "+PC+" -> ");
-			Instrucao i = FilaDeInstrucoes.poll();
+			Instrucao i = FilaDeInstrucoes.get(PC);
 			
 			//Tradução da instrução
 			
@@ -109,9 +109,7 @@ public class MIPS {
 				System.out.println("beq R"+regRT+",R"+regRS+","+decImm);
 				PC+=4;
 				if(Registradores[regRS].getValor()==Registradores[regRT].getValor()){
-					for(int a=PC+decImm;PC<a;PC+=4){
-						FilaDeInstrucoes.poll();
-					}
+					PC += decImm;
 				}
 				break;
 			//Instrução Ble
@@ -119,9 +117,7 @@ public class MIPS {
 				System.out.println("ble R"+regRT+",R"+regRS+","+decImm);
 				PC+=4;
 				if(Registradores[regRS].getValor()<=Registradores[regRT].getValor()){
-					for(int a=PC+decImm;PC<a;PC+=4){
-						FilaDeInstrucoes.poll();
-					}
+					PC = decImm;
 				}
 				break;
 			//Instrução Bne
@@ -129,17 +125,12 @@ public class MIPS {
 				System.out.println("bne R"+regRT+",R"+regRS+","+decImm);
 				PC+=4;
 				if(Registradores[regRS].getValor()!=Registradores[regRT].getValor()){
-					for(int a=PC+decImm;PC<a;PC+=4){
-						FilaDeInstrucoes.poll();
-					}
+					PC+=decImm;
 				}
 				break;
 			//Instrução Jmp
 			case "000010":
-				System.out.println("jmp "+tA);
-				for(int a=PC;a<tA;a+=4){
-					FilaDeInstrucoes.poll();
-				}				
+				System.out.println("jmp "+tA);			
 				PC = tA;
 				break;
 			//Instrução Lw
