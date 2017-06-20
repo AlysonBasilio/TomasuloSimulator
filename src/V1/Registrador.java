@@ -1,3 +1,4 @@
+
 package V1;
 
 public class Registrador {
@@ -18,3 +19,4 @@ public class Registrador {
  	- Estações de reserva Qk e Vk faltando
  	- Estações de reserva devem ser inteiras? Melhor Strings
 */
+
