@@ -4,7 +4,9 @@ public class BufferDeReordenacao {
 	
 	private celulaDeReordenacao[] buffer;
 	private int numCelulasOcupadas;
-	private int posic;
+	private int inicio;
+	private int fim;
+	private int tamanho;
 	
 	public BufferDeReordenacao (int tamanho) {
 		buffer = new celulaDeReordenacao [tamanho];
@@ -12,29 +14,40 @@ public class BufferDeReordenacao {
 			buffer[n] = new celulaDeReordenacao ();
 			buffer[n].setBusy(false);
 		}
-		posic = 0;
+		this.tamanho = tamanho;
+		inicio = 0;
+		fim = 0;
 	}
 	
 	public void adicionaNoBuffer (Instrucao inst, int dest) {
-			buffer[posic].setBusy(true);
-			buffer[posic].setEstado("Emitida");
-			buffer[posic].setInstrucao(inst);
-			buffer[posic].setDestino(dest);
+			buffer[fim].setBusy(true);
+			buffer[fim].setEstado("Emitida");
+			buffer[fim].setInstrucao(inst);
+			buffer[fim].setDestino(dest);
 			String opcode = inst.getInstrucao().substring(0, 6);
 			String funct = inst.getInstrucao().substring(26);
 			if(opcode == "100011" || opcode == "101011")		//Load/Store
-				buffer[posic].setTempoDeExecucao(4);
+				buffer[fim].setTempoDeExecucao(4);
 			else if (opcode == "000000" && funct == "011000")	//Mult
-				buffer[posic].setTempoDeExecucao(3);
+				buffer[fim].setTempoDeExecucao(3);
 			else 												//Outros
-				buffer[posic].setTempoDeExecucao(1);
-			posic = (posic+1)%buffer.length;
+				buffer[fim].setTempoDeExecucao(1);
+			fim = (fim+1)%tamanho;
 	}
 	
-	public int getPosic () { return posic;}
+	public void removeDoBuffer () {
+		buffer[inicio].setBusy(false);
+		numCelulasOcupadas--;
+		inicio = (inicio+1)%tamanho;
+	}
+	
+	public int getTamanho () { return tamanho; }
+	public int getPosic () { return fim;}
+	public int getInicio () {return inicio; }
+	public celulaDeReordenacao getPosicaoBuffer (int x) { return buffer[x]; }
 	
 	public boolean isFull () {
-		if ( numCelulasOcupadas == buffer.length)
+		if ( numCelulasOcupadas == tamanho)
 			return true;
 		else
 			return false;

@@ -243,11 +243,74 @@ public class MIPS {
 		
 	}
 	
-	private static void executar () {}
+	private static void executar () {
+		for (int m = 0; m < buffer.getTamanho(); m++) {
+			celulaDeReordenacao aux = buffer.getPosicaoBuffer(m);
+			if (aux.isBusy() && aux.getEstado() == "Executando")
+				buffer.getPosicaoBuffer(m).decTempoDeExecucao();
+		}
+	}
+	
 	
 	private static void gravar() {
-		// TODO Auto-generated method stub
 		
+		/* Pega a primeira instrução no buffer de reordenação com o status gravando e 
+		 * joga o seu valor no barramento juntamente com o destino  
+		 */
+		for (int m = 0; m < buffer.getTamanho(); m++) {
+			celulaDeReordenacao aux = buffer.getPosicaoBuffer((buffer.getInicio()+m)%buffer.getTamanho());
+			if (aux.isBusy() && aux.getEstado() == "Gravando"){
+					barramentoDeDadosComum.setBusy(true);
+					barramentoDeDadosComum.setDado(aux.getValor());
+					barramentoDeDadosComum.setLocal(aux.getDestino());
+					break;
+			}
+		}
+		if (barramentoDeDadosComum.isBusy()) {
+			/* Percorre as estações de reserva para verificar se o dado no barramento é 
+			 * utilizado para retirar alguma dependência de alguma estação
+			 */
+			for (int m = 0; m < somaFP.length; m++) {
+				if (somaFP[m].thereIsQj() && somaFP[m].getQj() == barramentoDeDadosComum.getLocal()){
+					somaFP[m].setVj(barramentoDeDadosComum.getDado());
+					somaFP[m].setbQj(false);
+				}
+				if (somaFP[m].thereIsQk() && somaFP[m].getQk() == barramentoDeDadosComum.getLocal()){
+					somaFP[m].setVk(barramentoDeDadosComum.getDado());
+					somaFP[m].setbQk(false);
+				}
+			}
+			
+			for (int m = 0; m < multFP.length; m++) {
+				if (multFP[m].thereIsQj() && multFP[m].getQj() == barramentoDeDadosComum.getLocal()){
+					multFP[m].setVj(barramentoDeDadosComum.getDado());
+					multFP[m].setbQj(false);
+				}
+				if (multFP[m].thereIsQk() && multFP[m].getQk() == barramentoDeDadosComum.getLocal()){
+					multFP[m].setVk(barramentoDeDadosComum.getDado());
+					multFP[m].setbQk(false);
+				}
+			}
+			
+			for (int m = 0; m < cargaFP.length; m++) {
+				if (cargaFP[m].thereIsQj() && cargaFP[m].getQj() == barramentoDeDadosComum.getLocal()){
+					cargaFP[m].setVj(barramentoDeDadosComum.getDado());
+					cargaFP[m].setbQj(false);
+				}
+				if (cargaFP[m].thereIsQk() && cargaFP[m].getQk() == barramentoDeDadosComum.getLocal()){
+					cargaFP[m].setVk(barramentoDeDadosComum.getDado());
+					cargaFP[m].setbQk(false);
+				}
+			}
+			
+			/* Percorre o buffer de reordenação para verificar se o dado no barramento é 
+			 * utilizado para retirar alguma dependência de alguma instrução
+			 */
+			for (int m = 0; m < buffer.getTamanho(); m++) {
+				celulaDeReordenacao aux = buffer.getPosicaoBuffer(m);
+					
+			}
+		}
 	}
 	
 	private static void consolidar() {
