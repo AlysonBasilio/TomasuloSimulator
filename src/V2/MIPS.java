@@ -148,8 +148,13 @@ public class MIPS {
 						buffer.adicionaNoBuffer(instAux, regRD);
 						if (registradores[regRS].getQi() == -1)
 							multFP[indice].setQj(registradores[regRS].getVi());
+						else
+							multFP[indice].setQj(registradores[regRS].getQi());
 						if (registradores[regRT].getQi() == -1)
 							multFP[indice].setQk(registradores[regRT].getVi());
+						else
+							multFP[indice].setQk(registradores[regRT].getQi());
+						registradores[regRD].setQi(multFP[indice].getDest());
 						PC+=4;
 					}
 					System.out.println("mul R"+regRD+",R"+regRS+",R"+regRT);
@@ -164,9 +169,14 @@ public class MIPS {
 						somaFP[indice].setDest(buffer.getPosic());
 						buffer.adicionaNoBuffer(instAux, regRD);
 						if (registradores[regRS].getQi() == -1)
-							somaFP[indice].setQj(registradores[regRS].getVi());
+							somaFP[indice].setVj(registradores[regRS].getVi());
+						else
+							somaFP[indice].setQj(registradores[regRS].getQi());	
 						if (registradores[regRT].getQi() == -1)
-							somaFP[indice].setQk(registradores[regRT].getVi());
+							somaFP[indice].setVk(registradores[regRT].getVi());
+						else
+							somaFP[indice].setQk(registradores[regRT].getQi());
+						registradores[regRD].setQi(somaFP[indice].getDest());
 						PC+=4;
 					}
 					System.out.println("sub R"+regRD+",R"+regRS+",R"+regRT);
@@ -189,7 +199,10 @@ public class MIPS {
 				buffer.adicionaNoBuffer(instAux, regRT);
 				if (registradores[regRS].getQi() == -1)
 					somaFP[indice].setQj(registradores[regRS].getVi());
+				else
+					somaFP[indice].setQj(registradores[regRS].getQi());
 				somaFP[indice].setQk(decImm);
+				registradores[regRT].setQi(somaFP[indice].getDest());
 				PC+=4;
 			}
 			System.out.println("addi R"+regRT+",R"+regRS+","+decImm);
