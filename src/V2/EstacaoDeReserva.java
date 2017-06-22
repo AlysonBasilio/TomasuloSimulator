@@ -11,60 +11,28 @@ public class EstacaoDeReserva {
 				Vk, 
 				Qj, 
 				Qk;
-	private boolean bVj, 
-					bVk, 
-					bQj, 
-					bQk; 
-	private	String A;
+	private	int A;
 	
 	public String getID() {	return ID; }
-	public void setID(String iD) { ID = iD;	}
+	public void setID(String iD) { this.ID = iD;	}
 	public String getTipo() { return Tipo; }
-	public void setTipo(String tipo) { Tipo = tipo;	}
+	public void setTipo(String tipo) { this.Tipo = tipo;	}
 	public boolean isBusy() { return Busy; }
-	public void setBusy(boolean busy) {	
-		Busy = busy;
-		if(!busy){
-			bVj = false;
-			bVk = false;
-			bQj = false;
-			bQk = false;
-		}		
-	}
+	public void setBusy(boolean busy) {	this.Busy = busy; }
 	public String getInst() { return inst; }
 	public void setInst(String inst) { this.inst = inst; }
 	public int getDest() { return Dest; }
-	public void setDest(int dest) { Dest = dest; }
+	public void setDest(int dest) { this.Dest = dest; }
 	public int getVj() { return Vj; }
-	public void setVj(int vj) { 
-		Vj = vj; 
-		bVj = true;
-	}
+	public void setVj(int vj) { this.Vj = vj; }
 	public int getVk() { return Vk; }
-	public void setVk(int vk) { 
-		Vk = vk; 
-		bVk = true;
-	}
+	public void setVk(int vk) { this.Vk = vk; }
 	public int getQj() { return Qj;	}
-	public void setQj(int qj) { 
-		Qj = qj; 
-		bQj = true;
-	}
+	public void setQj(int qj) { this.Qj = qj; }
 	public int getQk() { return Qk;	}
-	public void setQk(int qk) {
-		Qk = qk;
-		bQk = true;
-	}
-	public boolean thereIsVj() { return bVj; }
-	public void setbVj(boolean bVj) { this.bVj = bVj; }
-	public boolean thereIsVk() { return bVk; }
-	public void setbVk(boolean bVk) { this.bVk = bVk; }
-	public boolean thereIsQj() { return bQj; }
-	public void setbQj(boolean bQj) { this.bQj = bQj; }
-	public boolean thereIsQk() { return bQk; }
-	public void setbQk(boolean bQk) { this.bQk = bQk; }
-	public String getA() { return A; }
-	public void setA(String a) { A = a; }
+	public void setQk(int qk) { this.Qk = qk; }
+	public int getA() { return A; }
+	public void setA(int a) { this.A = a; }
 	
 }
 

@@ -2,6 +2,7 @@ package V2;
 
 public class celulaDeReordenacao {
 	
+	private boolean ready;
 	private boolean busy;
 	private Instrucao instrucao;
 	private String estado;
@@ -13,6 +14,8 @@ public class celulaDeReordenacao {
 		this.tempoDeExecucao--;
 	}
 	
+	public boolean isReady() { return ready; }
+	public void setReady(boolean ready) { this.ready = ready; }
 	public int getTempoDeExecucao() { return tempoDeExecucao; }
 	public void setTempoDeExecucao(int tempoDeExecucao) { this.tempoDeExecucao = tempoDeExecucao; }
 	public boolean isBusy() { return busy; }

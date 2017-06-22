@@ -21,6 +21,7 @@ public class BufferDeReordenacao {
 	
 	public void adicionaNoBuffer (Instrucao inst, int dest) {
 			buffer[fim].setBusy(true);
+			buffer[fim].setReady(false);
 			buffer[fim].setEstado("Emitida");
 			buffer[fim].setInstrucao(inst);
 			buffer[fim].setDestino(dest);

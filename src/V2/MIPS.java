@@ -91,6 +91,8 @@ public class MIPS {
 	/* Função que pega uma instrução e manda para a estação de reserva adequada se possível */
 	
 	private static void emitir () {
+		
+		
 		/*Primeiro veremos se há alguma célula passando para o estado de consolidar*/
 		
 		celulaDeReordenacao aux = buffer.getPosicaoBuffer(buffer.getInicio());
@@ -100,6 +102,7 @@ public class MIPS {
 		
 		Instrucao instAux = filaDeInstrucoes.get(PC);
 		int indice;
+		int destinoBuffer;
 		
 		/*Quebra e interpretação da instrução*/
 		
@@ -142,19 +145,38 @@ public class MIPS {
 						 *mos o valor para Vj. Se depender, adicionamos que existe uma depen-
 						 *dência e adicionamos o índice da posição do Buffer de Reordenação
 						 *do resultado dependente.*/
-						if (registradores[regRS].getQi() == -1)
+						if (registradores[regRS].isBusy()) {
+							destinoBuffer = registradores[regRS].getQi();
+							if (buffer.getPosicaoBuffer(destinoBuffer).isReady()) {
+								somaFP[indice].setVj(buffer.getPosicaoBuffer(destinoBuffer).getValor());
+								somaFP[indice].setQj(-1);  //indicar que não há dependência
+							}
+							else
+								somaFP[indice].setQj(destinoBuffer);	
+						}
+						else {
 							somaFP[indice].setVj(registradores[regRS].getVi());
-						else
-							somaFP[indice].setQj(registradores[regRS].getQi());	
+							somaFP[indice].setQj(-1);  //indicar que não há dependência
+						}
 						/*A mesma coisa para o segundo fator da operação.*/
-						if (registradores[regRT].getQi() == -1)
+						if (registradores[regRT].isBusy()) {
+							destinoBuffer = registradores[regRT].getQi();
+							if (buffer.getPosicaoBuffer(destinoBuffer).isReady()) {
+								somaFP[indice].setVk(buffer.getPosicaoBuffer(destinoBuffer).getValor());
+								somaFP[indice].setQk(-1);  //indicar que não há dependência
+							}
+							else
+								somaFP[indice].setQk(destinoBuffer);	
+						}
+						else {
 							somaFP[indice].setVk(registradores[regRT].getVi());
-						else
-							somaFP[indice].setQk(registradores[regRT].getQi());
+							somaFP[indice].setQk(-1);
+						}
 						/*Aqui adicionamos que o registrador que guardará o resultado dessa
 						 *operação está dependendo do resultado dessa operação, guardando
 						 *nele o índice da posição da operação no Buffer de Reordenação. */
 						registradores[regRD].setQi(somaFP[indice].getDest());
+						registradores[regRD].setBusy(true);
 						/*Após emitir a instrução, deve-se atualizar o valor de PC.*/
 						PC+=4;
 					}
@@ -168,15 +190,34 @@ public class MIPS {
 						multFP[indice].setInst("Mul");
 						multFP[indice].setDest(buffer.getPosic());
 						buffer.adicionaNoBuffer(instAux, regRD);
-						if (registradores[regRS].getQi() == -1)
+						if (registradores[regRS].isBusy()) {
+							destinoBuffer = registradores[regRS].getQi();
+							if (buffer.getPosicaoBuffer(destinoBuffer).isReady()) {
+								multFP[indice].setVj(buffer.getPosicaoBuffer(destinoBuffer).getValor());
+								multFP[indice].setQj(-1);  
+							}
+							else
+								multFP[indice].setQj(destinoBuffer);	
+						}
+						else {
 							multFP[indice].setVj(registradores[regRS].getVi());
-						else
-							multFP[indice].setQj(registradores[regRS].getQi());
-						if (registradores[regRT].getQi() == -1)
+							multFP[indice].setQj(-1);  
+						}
+						if (registradores[regRT].isBusy()) {
+							destinoBuffer = registradores[regRT].getQi();
+							if (buffer.getPosicaoBuffer(destinoBuffer).isReady()) {
+								multFP[indice].setVk(buffer.getPosicaoBuffer(destinoBuffer).getValor());
+								multFP[indice].setQk(-1);  
+							}
+							else
+								multFP[indice].setQk(destinoBuffer);	
+						}
+						else {
 							multFP[indice].setVk(registradores[regRT].getVi());
-						else
-							multFP[indice].setQk(registradores[regRT].getQi());
+							multFP[indice].setQk(-1);
+						}
 						registradores[regRD].setQi(multFP[indice].getDest());
+						registradores[regRD].setBusy(true);
 						PC+=4;
 					}
 					System.out.println("mul R"+regRD+",R"+regRS+",R"+regRT);
@@ -186,18 +227,37 @@ public class MIPS {
 					indice = verificaEstacao ("Add");
 					if(indice != -1 && !buffer.isFull()) { 
 						somaFP[indice].setBusy(true);
-						somaFP[indice].setInst("Sub");
-						somaFP[indice].setDest(buffer.getPosic());
+						somaFP[indice].setInst("Add");
+						somaFP[indice].setDest(buffer.getPosic()); 
 						buffer.adicionaNoBuffer(instAux, regRD);
-						if (registradores[regRS].getQi() == -1)
+						if (registradores[regRS].isBusy()) {  
+							destinoBuffer = registradores[regRS].getQi();
+							if (buffer.getPosicaoBuffer(destinoBuffer).isReady()) {
+								somaFP[indice].setVj(buffer.getPosicaoBuffer(destinoBuffer).getValor());
+								somaFP[indice].setQj(-1);  
+							}
+							else
+								somaFP[indice].setQj(destinoBuffer);	
+						}
+						else {
 							somaFP[indice].setVj(registradores[regRS].getVi());
-						else
-							somaFP[indice].setQj(registradores[regRS].getQi());	
-						if (registradores[regRT].getQi() == -1)
+							somaFP[indice].setQj(-1);
+						}
+						if (registradores[regRT].isBusy()) {
+							destinoBuffer = registradores[regRT].getQi();
+							if (buffer.getPosicaoBuffer(destinoBuffer).isReady()) {
+								somaFP[indice].setVk(buffer.getPosicaoBuffer(destinoBuffer).getValor());
+								somaFP[indice].setQk(-1); 
+							}
+							else
+								somaFP[indice].setQk(destinoBuffer);	
+						}
+						else {
 							somaFP[indice].setVk(registradores[regRT].getVi());
-						else
-							somaFP[indice].setQk(registradores[regRT].getQi());
+							somaFP[indice].setQk(-1);
+						}
 						registradores[regRD].setQi(somaFP[indice].getDest());
+						registradores[regRD].setBusy(true);
 						PC+=4;
 					}
 					System.out.println("sub R"+regRD+",R"+regRS+",R"+regRT);
@@ -217,55 +277,142 @@ public class MIPS {
 				somaFP[indice].setInst("Addi");
 				somaFP[indice].setDest(buffer.getPosic());
 				buffer.adicionaNoBuffer(instAux, regRT);
-				if (registradores[regRS].getQi() == -1)
+				if (registradores[regRS].isBusy()) {  
+					destinoBuffer = registradores[regRS].getQi();
+					if (buffer.getPosicaoBuffer(destinoBuffer).isReady()) {
+						somaFP[indice].setVj(buffer.getPosicaoBuffer(destinoBuffer).getValor());
+						somaFP[indice].setQj(-1);  
+					}
+					else
+						somaFP[indice].setQj(destinoBuffer);	
+				}
+				else {
 					somaFP[indice].setVj(registradores[regRS].getVi());
-				else
-					somaFP[indice].setQj(registradores[regRS].getQi());
-				somaFP[indice].setVk(decImm);
+					somaFP[indice].setQj(-1);
+				}
+				somaFP[indice].setA(decImm);
 				registradores[regRT].setQi(somaFP[indice].getDest());
+				registradores[regRT].setBusy(true);
 				PC+=4;
 			}
 			System.out.println("addi R"+regRT+",R"+regRS+","+decImm);
 			break;
 		//Instrução Beq
 		case "000101":
-			indice = verificaEstacao("Load/Store");
+			indice = verificaEstacao("Add");
 			if(indice != -1 && !buffer.isFull()){
-				cargaFP[indice].setBusy(true);
-				cargaFP[indice].setInst("Beq");
-				cargaFP[indice].setDest(buffer.getPosic());
+				somaFP[indice].setBusy(true);
+				somaFP[indice].setInst("Beq");
+				somaFP[indice].setDest(buffer.getPosic()); 
 				buffer.adicionaNoBuffer(instAux, -1);
-				if(registradores[regRS].getQi() == -1)
-					cargaFP[indice].setVj(registradores[regRS].getVi());
-				else
-					cargaFP[indice].setQj(registradores[regRS].getQi());
-				if (registradores[regRT].getQi() == -1)
-					cargaFP[indice].setVk(registradores[regRT].getVi());
-				else
-					cargaFP[indice].setQk(registradores[regRT].getQi());
-				buffer.getPosicaoBuffer(cargaFP[indice].getDest()).setValor(decImm);
+				if (registradores[regRS].isBusy()) {  
+					destinoBuffer = registradores[regRS].getQi();
+					if (buffer.getPosicaoBuffer(destinoBuffer).isReady()) {
+						somaFP[indice].setVj(buffer.getPosicaoBuffer(destinoBuffer).getValor());
+						somaFP[indice].setQj(-1);  
+					}
+					else
+						somaFP[indice].setQj(destinoBuffer);	
+				}
+				else {
+					somaFP[indice].setVj(registradores[regRS].getVi());
+					somaFP[indice].setQj(-1);
+				}
+				if (registradores[regRT].isBusy()) {
+					destinoBuffer = registradores[regRT].getQi();
+					if (buffer.getPosicaoBuffer(destinoBuffer).isReady()) {
+						somaFP[indice].setVk(buffer.getPosicaoBuffer(destinoBuffer).getValor());
+						somaFP[indice].setQk(-1); 
+					}
+					else
+						somaFP[indice].setQk(destinoBuffer);	
+				}
+				else {
+					somaFP[indice].setVk(registradores[regRT].getVi());
+					somaFP[indice].setQk(-1);
+				}
+				somaFP[indice].setA(PC+4);
+				PC+=4 + decImm;
 			}
 			System.out.println("beq R"+regRT+",R"+regRS+","+decImm);
-			PC+=4;
-			if(registradores[regRS].getVi()==registradores[regRT].getVi()){
-				PC += decImm;
-			}
 			break;
 		//Instrução Ble
 		case "000111":
-			System.out.println("ble R"+regRT+",R"+regRS+","+decImm);
-			PC+=4;
-			if(registradores[regRS].getVi()<=registradores[regRT].getVi()){
-				PC = decImm;
+			indice = verificaEstacao("Add");
+			if(indice != -1 && !buffer.isFull()){
+				somaFP[indice].setBusy(true);
+				somaFP[indice].setInst("Ble");
+				somaFP[indice].setDest(buffer.getPosic()); 
+				buffer.adicionaNoBuffer(instAux, -1);
+				if (registradores[regRS].isBusy()) {  
+					destinoBuffer = registradores[regRS].getQi();
+					if (buffer.getPosicaoBuffer(destinoBuffer).isReady()) {
+						somaFP[indice].setVj(buffer.getPosicaoBuffer(destinoBuffer).getValor());
+						somaFP[indice].setQj(-1);  
+					}
+					else
+						somaFP[indice].setQj(destinoBuffer);	
+				}
+				else {
+					somaFP[indice].setVj(registradores[regRS].getVi());
+					somaFP[indice].setQj(-1);
+				}
+				if (registradores[regRT].isBusy()) {
+					destinoBuffer = registradores[regRT].getQi();
+					if (buffer.getPosicaoBuffer(destinoBuffer).isReady()) {
+						somaFP[indice].setVk(buffer.getPosicaoBuffer(destinoBuffer).getValor());
+						somaFP[indice].setQk(-1); 
+					}
+					else
+						somaFP[indice].setQk(destinoBuffer);	
+				}
+				else {
+					somaFP[indice].setVk(registradores[regRT].getVi());
+					somaFP[indice].setQk(-1);
+				}
+				somaFP[indice].setA(PC+4);
+				PC+=decImm;
 			}
+			System.out.println("ble R"+regRT+",R"+regRS+","+decImm);
 			break;
 		//Instrução Bne
 		case "000100":
-			System.out.println("bne R"+regRT+",R"+regRS+","+decImm);
-			PC+=4;
-			if(registradores[regRS].getVi()!=registradores[regRT].getVi()){
-				PC += decImm;
+			indice = verificaEstacao("Add");
+			if(indice != -1 && !buffer.isFull()){
+				somaFP[indice].setBusy(true);
+				somaFP[indice].setInst("Bne");
+				somaFP[indice].setDest(buffer.getPosic()); 
+				buffer.adicionaNoBuffer(instAux, -1);
+				if (registradores[regRS].isBusy()) {  
+					destinoBuffer = registradores[regRS].getQi();
+					if (buffer.getPosicaoBuffer(destinoBuffer).isReady()) {
+						somaFP[indice].setVj(buffer.getPosicaoBuffer(destinoBuffer).getValor());
+						somaFP[indice].setQj(-1);  
+					}
+					else
+						somaFP[indice].setQj(destinoBuffer);	
+				}
+				else {
+					somaFP[indice].setVj(registradores[regRS].getVi());
+					somaFP[indice].setQj(-1);
+				}
+				if (registradores[regRT].isBusy()) {
+					destinoBuffer = registradores[regRT].getQi();
+					if (buffer.getPosicaoBuffer(destinoBuffer).isReady()) {
+						somaFP[indice].setVk(buffer.getPosicaoBuffer(destinoBuffer).getValor());
+						somaFP[indice].setQk(-1); 
+					}
+					else
+						somaFP[indice].setQk(destinoBuffer);	
+				}
+				else {
+					somaFP[indice].setVk(registradores[regRT].getVi());
+					somaFP[indice].setQk(-1);
+				}
+				somaFP[indice].setA(PC+4);
+				PC+=4+decImm;
 			}
+			System.out.println("bne R"+regRT+",R"+regRS+","+decImm);
 			break;
 		//Instrução Jmp
 		case "000010":
@@ -274,15 +421,70 @@ public class MIPS {
 			break;
 		//Instrução Lw
 		case "100011":
+			indice = verificaEstacao ("Load/Store");
+			if(indice != -1 && !buffer.isFull()) { 
+				cargaFP[indice].setBusy(true);
+				cargaFP[indice].setInst("Load");
+				cargaFP[indice].setDest(buffer.getPosic()); 
+				buffer.adicionaNoBuffer(instAux, regRT);
+				if (registradores[regRS].isBusy()) {  
+					destinoBuffer = registradores[regRS].getQi();
+					if (buffer.getPosicaoBuffer(destinoBuffer).isReady()) {
+						cargaFP[indice].setVj(buffer.getPosicaoBuffer(destinoBuffer).getValor());
+						cargaFP[indice].setQj(-1);  
+					}
+					else
+						cargaFP[indice].setQj(destinoBuffer);	
+				}
+				else {
+					cargaFP[indice].setVj(registradores[regRS].getVi());
+					cargaFP[indice].setQj(-1);
+				}
+				cargaFP[indice].setA(decImm);
+				registradores[regRT].setQi(cargaFP[indice].getDest());
+				registradores[regRT].setBusy(true);
+				PC+=4;
+			}
 			System.out.println("lw R"+regRT+","+decImm+"(R"+regRS+")");
-			PC+=4;
-			registradores[regRT].setVi(MEM[registradores[regRS].getVi()+decImm]);
 			break;
 		//Instrução Sw
 		case "101011":
+			indice = verificaEstacao ("Load/Store");
+			if(indice != -1 && !buffer.isFull()) { 
+				cargaFP[indice].setBusy(true);
+				cargaFP[indice].setInst("Store");
+				cargaFP[indice].setDest(buffer.getPosic()); 
+				buffer.adicionaNoBuffer(instAux, -1);
+				if (registradores[regRS].isBusy()) {  
+					destinoBuffer = registradores[regRS].getQi();
+					if (buffer.getPosicaoBuffer(destinoBuffer).isReady()) {
+						cargaFP[indice].setVj(buffer.getPosicaoBuffer(destinoBuffer).getValor());
+						cargaFP[indice].setQj(-1);  
+					}
+					else
+						cargaFP[indice].setQj(destinoBuffer);	
+				}
+				else {
+					cargaFP[indice].setVj(registradores[regRS].getVi());
+					cargaFP[indice].setQj(-1);
+				}
+				if (registradores[regRT].isBusy()) {
+					destinoBuffer = registradores[regRT].getQi();
+					if (buffer.getPosicaoBuffer(destinoBuffer).isReady()) {
+						cargaFP[indice].setVk(buffer.getPosicaoBuffer(destinoBuffer).getValor());
+						cargaFP[indice].setQk(-1); 
+					}
+					else
+						cargaFP[indice].setQk(destinoBuffer);	
+				}
+				else {
+					cargaFP[indice].setVk(registradores[regRT].getVi());
+					cargaFP[indice].setQk(-1);
+				}
+				cargaFP[indice].setA(decImm);
+				PC+=4;
+			}
 			System.out.println("sw R"+regRT+","+decImm+"(R"+regRS+")");
-			PC+=4;
-			MEM[registradores[regRS].getVi()+decImm] =registradores[regRT].getVi();
 			break;
 		default:
 			System.out.println("Comando não interpretado!!!");
@@ -312,24 +514,32 @@ public class MIPS {
 			if(somaFP[m].isBusy() && somaFP[m].getDest()==posBuffer){
 				if(somaFP[m].getInst()=="Add")
 					buffer.getPosicaoBuffer(posBuffer).setValor(somaFP[m].getVj()+somaFP[m].getVk());
-				else if(somaFP[m].getInst()=="Sub")
+				else if(somaFP[m].getInst()=="Sub" || somaFP[m].getInst()=="Bne" || somaFP[m].getInst()=="Ble" || somaFP[m].getInst()=="Beq")
 					buffer.getPosicaoBuffer(posBuffer).setValor(somaFP[m].getVj()-somaFP[m].getVk());
 				else if(somaFP[m].getInst()=="Addi")
-					buffer.getPosicaoBuffer(posBuffer).setValor(somaFP[m].getVj()+somaFP[m].getVk());
+					buffer.getPosicaoBuffer(posBuffer).setValor(somaFP[m].getVj()+somaFP[m].getA());
 				return;
 			}
 		}
 		
 		for (int m = 0; m < multFP.length; m++) {
 			if(multFP[m].isBusy() && multFP[m].getDest()==posBuffer){
-				if(somaFP[m].getInst()=="Mul")
-					buffer.getPosicaoBuffer(posBuffer).setValor(somaFP[m].getVj()*somaFP[m].getVk());
+				if(multFP[m].getInst()=="Mul")
+					buffer.getPosicaoBuffer(posBuffer).setValor(multFP[m].getVj()*multFP[m].getVk());
 				return;
 			}
 		}
 		
 		for (int m = 0; m < cargaFP.length; m++) {
-		
+			if(cargaFP[m].isBusy() && cargaFP[m].getDest()==posBuffer){
+				if(cargaFP[m].getInst()=="Load"){
+					cargaFP[m].setA(cargaFP[m].getA()+cargaFP[m].getVj());
+					buffer.getPosicaoBuffer(posBuffer).setValor(MEM[cargaFP[m].getA()]);
+				}
+				else if(cargaFP[m].getInst()=="Store")
+					buffer.getPosicaoBuffer(posBuffer).setValor(cargaFP[m].getVj()+cargaFP[m].getA());
+				return;
+			}
 		}
 	}
 
@@ -338,9 +548,14 @@ public class MIPS {
 		/* Pega a primeira instrução no buffer de reordenação com o status gravando e 
 		 * joga o seu valor no barramento juntamente com o destino  
 		 */
+		int posicBuffer;
 		for (int m = 0; m < buffer.getTamanho(); m++) {
-			celulaDeReordenacao aux = buffer.getPosicaoBuffer((buffer.getInicio()+m)%buffer.getTamanho());
+			posicBuffer = (buffer.getInicio()+m)%buffer.getTamanho();
+			celulaDeReordenacao aux = buffer.getPosicaoBuffer(posicBuffer);
 			if (aux.isBusy() && aux.getEstado() == "Gravando"){
+					aux.setReady(true);
+					if (buffer.getPosicaoBuffer(posicBuffer).getInstrucao().getInstrucao().substring(0, 6) != "101011")
+						liberaEstacao(posicBuffer);
 					barramentoDeDadosComum.setBusy(true);
 					barramentoDeDadosComum.setDado(aux.getValor());
 					/*Aqui é setado a posição do Buffer de Reordenação que contêm o resultado da instrução.*/
@@ -355,44 +570,68 @@ public class MIPS {
 			 * emitida para executando.
 			 */
 			for (int m = 0; m < somaFP.length; m++) {
-				if (somaFP[m].thereIsQj() && somaFP[m].getQj() == barramentoDeDadosComum.getLocal()){
+				if (somaFP[m].getQj() != -1 && somaFP[m].getQj() == barramentoDeDadosComum.getLocal()){
 					somaFP[m].setVj(barramentoDeDadosComum.getDado());
-					somaFP[m].setbQj(false);
+					somaFP[m].setQj(-1);
 				}
-				if (somaFP[m].thereIsQk() && somaFP[m].getQk() == barramentoDeDadosComum.getLocal()){
+				if (somaFP[m].getQk() != -1 && somaFP[m].getQk() == barramentoDeDadosComum.getLocal()){
 					somaFP[m].setVk(barramentoDeDadosComum.getDado());
-					somaFP[m].setbQk(false);
+					somaFP[m].setQk(-1);
 				}
-				if(buffer.getPosicaoBuffer(somaFP[m].getDest()).getEstado()=="Emitida" && !somaFP[m].thereIsQj() && !somaFP[m].thereIsQk())
+				if(buffer.getPosicaoBuffer(somaFP[m].getDest()).getEstado()=="Emitida" && somaFP[m].getQj() == -1 && somaFP[m].getQk() == -1)
 					buffer.getPosicaoBuffer(somaFP[m].getDest()).setEstado("Executando");
 			}
 			
 			for (int m = 0; m < multFP.length; m++) {
-				if (multFP[m].thereIsQj() && multFP[m].getQj() == barramentoDeDadosComum.getLocal()){
+				if (multFP[m].getQj() != -1 && multFP[m].getQj() == barramentoDeDadosComum.getLocal()){
 					multFP[m].setVj(barramentoDeDadosComum.getDado());
-					multFP[m].setbQj(false);
+					multFP[m].setQj(-1);
 				}
-				if (multFP[m].thereIsQk() && multFP[m].getQk() == barramentoDeDadosComum.getLocal()){
+				if (multFP[m].getQk() != -1 && multFP[m].getQk() == barramentoDeDadosComum.getLocal()){
 					multFP[m].setVk(barramentoDeDadosComum.getDado());
-					multFP[m].setbQk(false);
+					multFP[m].setQk(-1);
 				}
-				if(buffer.getPosicaoBuffer(multFP[m].getDest()).getEstado()=="Emitida" && !multFP[m].thereIsQj() && !multFP[m].thereIsQk())
+				if(buffer.getPosicaoBuffer(multFP[m].getDest()).getEstado()=="Emitida" && multFP[m].getQj() == -1 && multFP[m].getQk() == -1)
 					buffer.getPosicaoBuffer(multFP[m].getDest()).setEstado("Executando");
 			}
 			
 			for (int m = 0; m < cargaFP.length; m++) {
-				if (cargaFP[m].thereIsQj() && cargaFP[m].getQj() == barramentoDeDadosComum.getLocal()){
+				if (cargaFP[m].getQj() != -1 && cargaFP[m].getQj() == barramentoDeDadosComum.getLocal()){
 					cargaFP[m].setVj(barramentoDeDadosComum.getDado());
-					cargaFP[m].setbQj(false);
+					cargaFP[m].setQj(-1);
 				}
-				if (cargaFP[m].thereIsQk() && cargaFP[m].getQk() == barramentoDeDadosComum.getLocal()){
+				if (cargaFP[m].getQk() != -1 && cargaFP[m].getQk() == barramentoDeDadosComum.getLocal()){
 					cargaFP[m].setVk(barramentoDeDadosComum.getDado());
-					cargaFP[m].setbQk(false);
+					cargaFP[m].setQk(-1);
 				}
-				if(buffer.getPosicaoBuffer(cargaFP[m].getDest()).getEstado()=="Emitida" && !cargaFP[m].thereIsQj() && !cargaFP[m].thereIsQk())
-					buffer.getPosicaoBuffer(cargaFP[m].getDest()).setEstado("Executando");
+				if (buffer.getPosicaoBuffer(cargaFP[m].getDest()).getEstado()=="Emitida" && cargaFP[m].getQk() == -1){
+					if (cargaFP[m].getInst() == "Store")
+						buffer.getPosicaoBuffer(cargaFP[m].getDest()).setEstado("Executando");
+					if (cargaFP[m].getInst() == "Load" && cargaFP[m].getQj() == -1)
+						buffer.getPosicaoBuffer(cargaFP[m].getDest()).setEstado("Executando");
+				}
 			}
 		}
+	}
+	
+	private static void liberaEstacao(int posic) {
+		for (int m = 0; m < somaFP.length; m++)
+			if (somaFP[m].getDest() == posic) {
+				somaFP[m].setBusy(false);
+				return;
+			}
+		
+		for (int m = 0; m < multFP.length; m++)
+			if (multFP[m].getDest() == posic) {
+				multFP[m].setBusy(false);
+				return;
+			}
+		
+		for (int m = 0; m < cargaFP.length; m++)
+			if (cargaFP[m].getDest() == posic) {
+				cargaFP[m].setBusy(false);
+				return;
+			}
 	}
 	
 	private static void consolidar() {
@@ -407,9 +646,39 @@ public class MIPS {
 		 */
 		celulaDeReordenacao aux = buffer.getPosicaoBuffer(buffer.getInicio());
 		if (aux.isBusy() && aux.getEstado() == "Consolidando"){
-			consolidaValor(aux.getValor(),buffer.getInicio());
+			if(aux.getInstrucao().getInstrucao().substring(0, 4) == "000101"){
+				if (aux.getValor() == 0)
+					buffer.removeDoBuffer();
+				else {
+					PC = consultaEstacao(aux.getDestino()).getA();
+					limpaTudo ();
+				}
+			}
+			else if(aux.getInstrucao().getInstrucao().substring(0, 4) == "000111"){
+				if (aux.getValor() <= 0)
+					buffer.removeDoBuffer();
+				else {
+					PC = consultaEstacao(aux.getDestino()).getA();
+					limpaTudo ();
+				}
+			}
+			else if(aux.getInstrucao().getInstrucao().substring(0, 4) == "000100"){
+				if (aux.getValor() != 0)
+					buffer.removeDoBuffer();
+				else {
+					PC = consultaEstacao(aux.getDestino()).getA();
+					limpaTudo ();
+				}
+			}
+			else if (aux.getInstrucao().getInstrucao().substring(0,6) == "101011") {
+				MEM[aux.getDestino()] = aux.getValor();
+				buffer.removeDoBuffer();
+			}
+			else {
+				consolidaValor(aux.getValor(),buffer.getInicio());
+				buffer.removeDoBuffer();
+			}
 			barramentoDeDadosComum.setBusy(false);
-			buffer.removeDoBuffer();
 		}
 	}
 
@@ -423,6 +692,40 @@ public class MIPS {
 		}
 	}
 
+	public static EstacaoDeReserva consultaEstacao (int dest) {
+
+		for (int m = 0; m < somaFP.length; m++)
+			if (somaFP[m].getDest() == dest)
+				return somaFP[m];
+						
+		for (int m = 0; m < multFP.length; m++)
+			if (multFP[m].getDest() == dest)
+				return multFP[m];
+		
+		for (int m = 0; m < cargaFP.length; m++)
+			if (cargaFP[m].getDest() == dest)
+				return cargaFP[m];
+		
+		return null;
+		
+	}
+	
+	public static void limpaTudo () {
+		
+		for (int m = 0; m < somaFP.length; m++)
+			somaFP[m].setBusy(false);
+
+		for (int m = 0; m < multFP.length; m++)
+			multFP[m].setBusy(false);
+
+		for (int m = 0; m < cargaFP.length; m++)
+			cargaFP[m].setBusy(false);
+		
+		for (int m = 0; m < buffer.getTamanho(); m++)
+			buffer.getPosicaoBuffer(m).setBusy(false);
+		
+	}
+	
 	public static void main(String[] args) {
 		
 		/* Inicializações do Programa */
