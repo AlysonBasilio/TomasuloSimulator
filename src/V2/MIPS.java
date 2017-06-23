@@ -369,8 +369,8 @@ public class MIPS {
 					somaFP[indice].setVk(registradores[regRT].getVi());
 					somaFP[indice].setQk(-1);
 				}
-				somaFP[indice].setA(decImm);
-				PC+=4;
+				somaFP[indice].setA(PC+4);
+				PC=decImm;
 			}
 			System.out.println("ble R"+regRT+",R"+regRS+","+decImm);
 			break;
@@ -694,7 +694,7 @@ public class MIPS {
 				}
 			}
 			else if(aux.getInstrucao().getInstrucao().substring(0, 6).equals("000111")){
-				if (aux.getValor() > 0)
+				if (aux.getValor() <= 0)
 					buffer.removeDoBuffer();
 				else {
 					PC = consultaEstacao(buffer.getInicio()).getA();

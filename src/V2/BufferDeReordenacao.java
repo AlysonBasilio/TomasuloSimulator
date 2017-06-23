@@ -81,6 +81,9 @@ public class BufferDeReordenacao {
 
 	public void setBusy(int m, boolean b) {
 		buffer[m].setBusy(b);
+		if(!b){
+			numCelulasOcupadas--;
+		}
 	}
 
 	public void imprimeTodosOsValores() {
