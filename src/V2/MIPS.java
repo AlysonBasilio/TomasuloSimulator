@@ -342,7 +342,7 @@ public class MIPS {
 				somaFP[indice].setBusy(true);
 				somaFP[indice].setInst("Ble");
 				somaFP[indice].setDest(buffer.getPosic()); 
-				buffer.adicionaNoBuffer(instAux, -1);
+				buffer.adicionaNoBuffer(instAux, indice);
 				if (registradores[regRS].isBusy()) {  
 					destinoBuffer = registradores[regRS].getQi();
 					if (buffer.getItemBuffer(destinoBuffer).isReady()) {
@@ -514,8 +514,10 @@ public class MIPS {
 			if(somaFP[m].isBusy() && somaFP[m].getDest()==posBuffer){
 				if(somaFP[m].getInst()=="Add")
 					buffer.setValor(posBuffer, somaFP[m].getVj()+somaFP[m].getVk());
-				else if(somaFP[m].getInst()=="Sub" || somaFP[m].getInst()=="Bne" || somaFP[m].getInst()=="Ble" || somaFP[m].getInst()=="Beq")
+				else if(somaFP[m].getInst()=="Sub" || somaFP[m].getInst()=="Bne" || somaFP[m].getInst()=="Ble" || somaFP[m].getInst()=="Beq"){
 					buffer.setValor(posBuffer, somaFP[m].getVj()-somaFP[m].getVk());
+					System.out.println("Inst = "+somaFP[m].getInst()+" | Valor = "+(somaFP[m].getVj()-somaFP[m].getVk()));
+				}
 				else if(somaFP[m].getInst()=="Addi")
 					buffer.setValor(posBuffer, somaFP[m].getVj()+somaFP[m].getA());
 				return;
@@ -687,14 +689,16 @@ public class MIPS {
 					buffer.removeDoBuffer();
 				else {
 					PC = consultaEstacao(aux.getDestino()).getA();
+					buffer.removeDoBuffer();
 					limpaTudo ();
 				}
 			}
 			else if(aux.getInstrucao().getInstrucao().substring(0, 6).equals("000111")){
-				if (aux.getValor() <= 0)
+				if (aux.getValor() > 0)
 					buffer.removeDoBuffer();
 				else {
 					PC = consultaEstacao(aux.getDestino()).getA();
+					buffer.removeDoBuffer();
 					limpaTudo ();
 				}
 			}
@@ -703,6 +707,7 @@ public class MIPS {
 					buffer.removeDoBuffer();
 				else {
 					PC = consultaEstacao(aux.getDestino()).getA();
+					buffer.removeDoBuffer();
 					limpaTudo ();
 				}
 			}
@@ -821,36 +826,31 @@ public class MIPS {
 		
 		preencheFilaDeInstrucoes ();
 		
-		while(filaDeInstrucoes.containsKey(PC)){
+		while(filaDeInstrucoes.containsKey(PC) || !buffer.isEmpty()){
 			buffer.decTempoDeExecucao();
 			System.out.println("PC = "+PC);
-			emitir ();
+			if(filaDeInstrucoes.containsKey(PC))
+				emitir ();
 			executar ();
 			gravar ();
 			consolidar ();
 			buffer.imprimeTodosOsValores();
-			System.out.println("Dependência de R6 = "+registradores[6].getQi());
-			if(cargaFP[0].isBusy())
-				System.out.println("cargaFP[0]> Tipo = "+cargaFP[0].getTipo()+" | busy = "+cargaFP[0].isBusy()+" | Inst = "+cargaFP[0].getInst()+" | Dest = "+cargaFP[0].getDest()+" | Qj = "+cargaFP[0].getQj()+" | Qk = "+cargaFP[0].getQk()+" | Vj = "+cargaFP[0].getVj()+" | Vk = "+cargaFP[0].getVk()+" | A = "+cargaFP[0].getA());
+			System.out.println("Num = "+buffer.getNumCelulas());
 			clock++;
 		}
-		while(!buffer.isEmpty()){
+		/*while(!buffer.isEmpty()){
 			buffer.decTempoDeExecucao();
 			System.out.println("PC = "+PC);
 			executar ();
 			gravar ();
 			consolidar ();
 			buffer.imprimeTodosOsValores();
-			System.out.println("Dependência de R6 = "+registradores[6].getQi());
-			if(cargaFP[0].isBusy())
-				System.out.println("cargaFP[0]> Tipo = "+cargaFP[0].getTipo()+" | busy = "+cargaFP[0].isBusy()+" | Inst = "+cargaFP[0].getInst()+" | Dest = "+cargaFP[0].getDest()+" | Qj = "+cargaFP[0].getQj()+" | Qk = "+cargaFP[0].getQk()+" | Vj = "+cargaFP[0].getVj()+" | Vk = "+cargaFP[0].getVk()+" | A = "+cargaFP[0].getA());
 			clock++;
-		}
+		}*/
 		System.out.println("Clocks: " + clock );
 		for(int i=0; i<registradores.length; i++)
 			System.out.println("Valor de R"+i+" = "+ registradores[i].getVi());
 		buffer.imprimeTodosOsValores();
-		System.out.println("MEM[3] = "+MEM[3]);
 		System.out.println("MEM[4] = "+MEM[4]);
 	}
 
