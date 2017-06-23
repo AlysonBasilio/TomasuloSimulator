@@ -91,4 +91,8 @@ public class BufferDeReordenacao {
 		}
 	}
 
+	public void setDestino(int i, int j) {
+		buffer[i].setDestino(j);
+	}
+
 }

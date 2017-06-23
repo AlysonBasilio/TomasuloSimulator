@@ -535,8 +535,11 @@ public class MIPS {
 					cargaFP[m].setA(cargaFP[m].getA()+cargaFP[m].getVj());
 					buffer.setValor(posBuffer, MEM[cargaFP[m].getA()]);
 				}
-				else if(cargaFP[m].getInst()=="Store")
-					buffer.setValor(posBuffer, cargaFP[m].getVj()+cargaFP[m].getA());
+				else if(cargaFP[m].getInst()=="Store"){
+					buffer.setValor(posBuffer, registradores[cargaFP[m].getVk()].getVi());
+					buffer.setDestino(posBuffer, cargaFP[m].getVj()+cargaFP[m].getA());
+				}
+				
 				return;
 			}
 		}
@@ -680,7 +683,7 @@ public class MIPS {
 		 */
 		celulaDeReordenacao aux = buffer.getItemBuffer(buffer.getInicio());
 		if (aux.isBusy() && aux.getEstado() == "Consolidando" && aux.getTempoDeExecucao() == 0){
-			if(aux.getInstrucao().getInstrucao().substring(0, 6) == "000101"){
+			if(aux.getInstrucao().getInstrucao().substring(0, 6).equals("000101")){
 				if (aux.getValor() == 0)
 					buffer.removeDoBuffer();
 				else {
@@ -688,7 +691,7 @@ public class MIPS {
 					limpaTudo ();
 				}
 			}
-			else if(aux.getInstrucao().getInstrucao().substring(0, 6) == "000111"){
+			else if(aux.getInstrucao().getInstrucao().substring(0, 6).equals("000111")){
 				if (aux.getValor() <= 0)
 					buffer.removeDoBuffer();
 				else {
@@ -696,7 +699,7 @@ public class MIPS {
 					limpaTudo ();
 				}
 			}
-			else if(aux.getInstrucao().getInstrucao().substring(0, 6) == "000100"){
+			else if(aux.getInstrucao().getInstrucao().substring(0, 6).equals("000100")){
 				if (aux.getValor() != 0)
 					buffer.removeDoBuffer();
 				else {
@@ -704,12 +707,12 @@ public class MIPS {
 					limpaTudo ();
 				}
 			}
-			else if (aux.getInstrucao().getInstrucao().substring(0,6) == "101011") {
+			else if (aux.getInstrucao().getInstrucao().substring(0,6).equals("101011")) {
+				System.out.println("Destino = "+aux.getDestino());
 				MEM[aux.getDestino()] = aux.getValor();
 				buffer.removeDoBuffer();
 			}
 			else {
-				System.out.println("Entrou aqui R3 = "+registradores[3].getVi()+" Instrução = "+aux.getInstrucao().getInstrucao());
 				consolidaValor(aux.getValor(),buffer.getInicio());
 				buffer.removeDoBuffer();
 			}
@@ -795,8 +798,9 @@ public class MIPS {
 		numElemCarga = 0;
 		
 		MEM = new int[4096];
-		Arrays.fill(MEM, 0);
-		
+		for(int i = 0; i<4096; i++){
+			MEM[i]=0;
+		}
 		registradores = new Registrador[32];
 		for(int i = 0; i<32; i++){
 			registradores[i] = new Registrador();
@@ -833,6 +837,7 @@ public class MIPS {
 		for(int i=0; i<registradores.length; i++)
 			System.out.println("Valor de R"+i+" = "+ registradores[i].getVi());
 		buffer.imprimeTodosOsValores();
+		System.out.println("MEM[4] = "+MEM[4]);
 	}
 
 }
