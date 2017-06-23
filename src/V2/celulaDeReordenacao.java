@@ -10,9 +10,7 @@ public class celulaDeReordenacao {
 	private int valor;
 	private int tempoDeExecucao;
 	
-	public void decTempoDeExecucao () { 
-		this.tempoDeExecucao--;
-	}
+	public void decTempoDeExecucao () { this.tempoDeExecucao--; }
 	
 	public boolean isReady() { return ready; }
 	public void setReady(boolean ready) { this.ready = ready; }

@@ -230,7 +230,7 @@ public class MIPS {
 					indice = verificaEstacao ("Add");
 					if(indice != -1 && !buffer.isFull()) { 
 						somaFP[indice].setBusy(true);
-						somaFP[indice].setInst("Add");
+						somaFP[indice].setInst("Sub");
 						somaFP[indice].setDest(buffer.getPosic()); 
 						buffer.adicionaNoBuffer(instAux, regRD);
 						if (registradores[regRS].isBusy()) {  
@@ -295,6 +295,7 @@ public class MIPS {
 					somaFP[indice].setVj(registradores[regRS].getVi());
 					somaFP[indice].setQj(-1);
 				}
+				somaFP[indice].setQk(-1);
 				somaFP[indice].setA(decImm);
 				registradores[regRT].setQi(somaFP[indice].getDest());
 				registradores[regRT].setBusy(true);
@@ -781,7 +782,17 @@ public class MIPS {
 		
 		while(filaDeInstrucoes.containsKey(PC)){
 			System.out.println("PC = "+PC);
+			System.out.println("Tamanho do buffer: " + buffer.getNumCelulas());
 			emitir ();
+			executar ();
+			gravar ();
+			consolidar ();
+			clock++;
+		}
+		
+		while(!buffer.isEmpty()){
+			System.out.println("PC = "+PC);
+			System.out.println("Tamanho do buffer: " + buffer.getNumCelulas());
 			executar ();
 			gravar ();
 			consolidar ();

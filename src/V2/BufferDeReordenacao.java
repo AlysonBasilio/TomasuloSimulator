@@ -15,8 +15,9 @@ public class BufferDeReordenacao {
 			buffer[n].setBusy(false);
 		}
 		this.tamanho = tamanho;
-		inicio = 0;
-		fim = 0;
+		this.numCelulasOcupadas = 0;
+		this.inicio = 0;
+		this.fim = 0;
 	}
 	
 	public void adicionaNoBuffer (Instrucao inst, int dest) {
@@ -25,6 +26,7 @@ public class BufferDeReordenacao {
 			buffer[fim].setEstado("Emitida");
 			buffer[fim].setInstrucao(inst);
 			buffer[fim].setDestino(dest);
+			numCelulasOcupadas++;
 			String opcode = inst.getInstrucao().substring(0, 6);
 			String funct = inst.getInstrucao().substring(26);
 			if(opcode == "100011" || opcode == "101011")		//Load/Store
@@ -42,6 +44,7 @@ public class BufferDeReordenacao {
 		inicio = (inicio+1)%tamanho;
 	}
 	
+	public int getNumCelulas () { return numCelulasOcupadas; }
 	public int getTamanho () { return tamanho; }
 	public int getPosic () { return fim;}
 	public int getInicio () {return inicio; }
@@ -53,25 +56,18 @@ public class BufferDeReordenacao {
 		else
 			return false;
 	}
-
-	public void setEstado(int i, String estado) {
-		buffer[i].setEstado(estado);
+	
+	public boolean isEmpty () {
+		if ( numCelulasOcupadas == 0)
+			return true;
+		else
+			return false;
 	}
 
-	public void decTempoDeExecucao(int m) {
-		buffer[m].decTempoDeExecucao();
-	}
-
-	public void setValor(int posBuffer, int valor) {
-		buffer[posBuffer].setValor(valor);
-	}
-
-	public void setReady(int posicBuffer, boolean b) {
-		buffer[posicBuffer].setReady(b);
-	}
-
-	public void setBusy(int m, boolean b) {
-		buffer[m].setBusy(b);
-	}
+	public void setEstado(int i, String estado) { buffer[i].setEstado(estado); }
+    public void decTempoDeExecucao(int m) { buffer[m].decTempoDeExecucao(); }
+    public void setValor(int posBuffer, int valor) { buffer[posBuffer].setValor(valor); }
+    public void setReady(int posicBuffer, boolean b) { buffer[posicBuffer].setReady(b); }
+    public void setBusy(int m, boolean b) { buffer[m].setBusy(b); }
 	
 }
