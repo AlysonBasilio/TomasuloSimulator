@@ -145,8 +145,10 @@ public class MIPS {
 								somaFP[indice].setVj(buffer.getItemBuffer(destinoBuffer).getValor());
 								somaFP[indice].setQj(-1);  //indicar que não há dependência
 							}
-							else
+							else{
 								somaFP[indice].setQj(destinoBuffer);	
+								//System.out.println("Dependência de R"+regRS+" = "+destinoBuffer);
+							}
 						}
 						else {
 							somaFP[indice].setVj(registradores[regRS].getVi());
@@ -185,7 +187,6 @@ public class MIPS {
 						multFP[indice].setInst("Mul");
 						multFP[indice].setDest(buffer.getPosic());
 						buffer.adicionaNoBuffer(instAux, regRD);
-						System.out.println("RS = "+regRS);
 						if (registradores[regRS].isBusy()) {
 							destinoBuffer = registradores[regRS].getQi();
 							if (buffer.getItemBuffer(destinoBuffer).isReady()) {
@@ -216,7 +217,6 @@ public class MIPS {
 						registradores[regRD].setBusy(true);
 						PC+=4;
 					}
-					System.out.println("Mult> Qj = "+multFP[indice].getQj()+" Qk = "+multFP[indice].getQk()+" Vj = "+multFP[indice].getVj()+" Vk = "+multFP[indice].getVk());
 					break;
 				//Função Sub
 				case "100010":
@@ -457,6 +457,7 @@ public class MIPS {
 				if (registradores[regRS].isBusy()) {  
 					destinoBuffer = registradores[regRS].getQi();
 					if (buffer.getItemBuffer(destinoBuffer).isReady()) {
+						System.out.println("Entrou aqui!!");
 						cargaFP[indice].setVj(buffer.getItemBuffer(destinoBuffer).getValor());
 						cargaFP[indice].setQj(-1);  
 					}
@@ -536,7 +537,7 @@ public class MIPS {
 					buffer.setValor(posBuffer, MEM[cargaFP[m].getA()]);
 				}
 				else if(cargaFP[m].getInst()=="Store"){
-					buffer.setValor(posBuffer, registradores[cargaFP[m].getVk()].getVi());
+					buffer.setValor(posBuffer, cargaFP[m].getVk());
 					buffer.setDestino(posBuffer, cargaFP[m].getVj()+cargaFP[m].getA());
 				}
 				
@@ -554,7 +555,6 @@ public class MIPS {
 			posicBuffer = (buffer.getInicio()+m)%buffer.getTamanho();
 			celulaDeReordenacao aux = buffer.getItemBuffer(posicBuffer);
 			if (aux.isBusy() && aux.getEstado() == "Gravando" && aux.getTempoDeExecucao() == 0){
-				System.out.println("Gravando B"+posicBuffer);
 				buffer.setReady(posicBuffer,true);
 				if (buffer.getItemBuffer(posicBuffer).getInstrucao().getInstrucao().substring(0, 6) != "101011")
 					liberaEstacao(posicBuffer);
@@ -677,7 +677,6 @@ public class MIPS {
 	}
 	
 	private static void consolidar() {
-		System.out.println("Valor de R3 = "+registradores[3].getVi());
 		/* Pega a primeira instrução no buffer de reordenação com o status consolidando e 
 		 * grava o seu valor no registrador destino.  
 		 */
@@ -708,8 +707,7 @@ public class MIPS {
 				}
 			}
 			else if (aux.getInstrucao().getInstrucao().substring(0,6).equals("101011")) {
-				System.out.println("Destino = "+aux.getDestino());
-				MEM[aux.getDestino()] = aux.getValor();
+				consolidaStore(buffer.getInicio());
 				buffer.removeDoBuffer();
 			}
 			else {
@@ -718,7 +716,15 @@ public class MIPS {
 			}
 			barramentoDeDadosComum.setBusy(false);
 		}
-		System.out.println("Valor de R3 depois = "+registradores[3].getVi());
+	}
+
+	private static void consolidaStore(int posBuffer) {
+		for(int i = 0; i<cargaFP.length; i++){
+			if(cargaFP[i].getDest()==posBuffer){
+				MEM[cargaFP[i].getVj()]=cargaFP[i].getVk();
+				return;
+			}
+		}
 	}
 
 	private static void consolidaValor(int valor, int i) {
@@ -822,7 +828,10 @@ public class MIPS {
 			executar ();
 			gravar ();
 			consolidar ();
-			//buffer.imprimeTodosOsValores();
+			buffer.imprimeTodosOsValores();
+			System.out.println("Dependência de R6 = "+registradores[6].getQi());
+			if(cargaFP[0].isBusy())
+				System.out.println("cargaFP[0]> Tipo = "+cargaFP[0].getTipo()+" | busy = "+cargaFP[0].isBusy()+" | Inst = "+cargaFP[0].getInst()+" | Dest = "+cargaFP[0].getDest()+" | Qj = "+cargaFP[0].getQj()+" | Qk = "+cargaFP[0].getQk()+" | Vj = "+cargaFP[0].getVj()+" | Vk = "+cargaFP[0].getVk()+" | A = "+cargaFP[0].getA());
 			clock++;
 		}
 		while(!buffer.isEmpty()){
@@ -831,12 +840,17 @@ public class MIPS {
 			executar ();
 			gravar ();
 			consolidar ();
+			buffer.imprimeTodosOsValores();
+			System.out.println("Dependência de R6 = "+registradores[6].getQi());
+			if(cargaFP[0].isBusy())
+				System.out.println("cargaFP[0]> Tipo = "+cargaFP[0].getTipo()+" | busy = "+cargaFP[0].isBusy()+" | Inst = "+cargaFP[0].getInst()+" | Dest = "+cargaFP[0].getDest()+" | Qj = "+cargaFP[0].getQj()+" | Qk = "+cargaFP[0].getQk()+" | Vj = "+cargaFP[0].getVj()+" | Vk = "+cargaFP[0].getVk()+" | A = "+cargaFP[0].getA());
 			clock++;
 		}
 		System.out.println("Clocks: " + clock );
 		for(int i=0; i<registradores.length; i++)
 			System.out.println("Valor de R"+i+" = "+ registradores[i].getVi());
 		buffer.imprimeTodosOsValores();
+		System.out.println("MEM[3] = "+MEM[3]);
 		System.out.println("MEM[4] = "+MEM[4]);
 	}
 
