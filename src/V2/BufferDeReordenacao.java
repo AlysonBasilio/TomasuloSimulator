@@ -65,9 +65,29 @@ public class BufferDeReordenacao {
 	}
 
 	public void setEstado(int i, String estado) { buffer[i].setEstado(estado); }
-    public void decTempoDeExecucao(int m) { buffer[m].decTempoDeExecucao(); }
-    public void setValor(int posBuffer, int valor) { buffer[posBuffer].setValor(valor); }
-    public void setReady(int posicBuffer, boolean b) { buffer[posicBuffer].setReady(b); }
-    public void setBusy(int m, boolean b) { buffer[m].setBusy(b); }
-	
+
+	public void decTempoDeExecucao(int m) {
+		buffer[m].decTempoDeExecucao();
+	}
+
+	public void setValor(int posBuffer, int valor) {
+		buffer[posBuffer].setValor(valor);
+	}
+
+	public void setReady(int posicBuffer, boolean b) {
+		buffer[posicBuffer].setReady(b);
+	}
+
+	public void setBusy(int m, boolean b) {
+		buffer[m].setBusy(b);
+	}
+
+	public void imprimeTodosOsValores() {
+		System.out.println("Entrada | Ocupado | Instrução | Estado | Destino | Valor");
+		for(int i=0; i<buffer.length; i++){
+			if(buffer[i].isBusy())
+				System.out.println("B"+i+" | "+buffer[i].isBusy()+" | "+buffer[i].getInstrucao().getInstrucao()+" | "+buffer[i].getEstado()+" | "+buffer[i].getDestino()+" | "+buffer[i].getValor());
+		}
+	}
+
 }
