@@ -564,7 +564,6 @@ public class MIPS {
 				break;
 			}
 		}
-		System.out.println("Tempo de Execução B1 = "+buffer.getItemBuffer(1).getTempoDeExecucao());
 		if (barramentoDeDadosComum.isBusy()) {
 			/* Percorre as estações de reserva para verificar se o dado no barramento é 
 			 * utilizado para retirar alguma dependência de alguma estação.
@@ -593,7 +592,6 @@ public class MIPS {
 					multFP[m].setQj(-1);
 				}
 				if (multFP[m].getQk() != -1 && multFP[m].getQk() == barramentoDeDadosComum.getLocal()){
-					System.out.println("Entrou.");
 					multFP[m].setVk(barramentoDeDadosComum.getDado());
 					multFP[m].setQk(-1);
 				}
@@ -676,13 +674,13 @@ public class MIPS {
 	}
 	
 	private static void consolidar() {
+		System.out.println("Valor de R3 = "+registradores[3].getVi());
 		/* Pega a primeira instrução no buffer de reordenação com o status consolidando e 
 		 * grava o seu valor no registrador destino.  
 		 */
 		celulaDeReordenacao aux = buffer.getItemBuffer(buffer.getInicio());
-		System.out.println("Tempo de Execução = "+aux.getTempoDeExecucao());
 		if (aux.isBusy() && aux.getEstado() == "Consolidando" && aux.getTempoDeExecucao() == 0){
-			if(aux.getInstrucao().getInstrucao().substring(0, 4) == "000101"){
+			if(aux.getInstrucao().getInstrucao().substring(0, 6) == "000101"){
 				if (aux.getValor() == 0)
 					buffer.removeDoBuffer();
 				else {
@@ -690,7 +688,7 @@ public class MIPS {
 					limpaTudo ();
 				}
 			}
-			else if(aux.getInstrucao().getInstrucao().substring(0, 4) == "000111"){
+			else if(aux.getInstrucao().getInstrucao().substring(0, 6) == "000111"){
 				if (aux.getValor() <= 0)
 					buffer.removeDoBuffer();
 				else {
@@ -698,7 +696,7 @@ public class MIPS {
 					limpaTudo ();
 				}
 			}
-			else if(aux.getInstrucao().getInstrucao().substring(0, 4) == "000100"){
+			else if(aux.getInstrucao().getInstrucao().substring(0, 6) == "000100"){
 				if (aux.getValor() != 0)
 					buffer.removeDoBuffer();
 				else {
@@ -711,11 +709,13 @@ public class MIPS {
 				buffer.removeDoBuffer();
 			}
 			else {
+				System.out.println("Entrou aqui R3 = "+registradores[3].getVi()+" Instrução = "+aux.getInstrucao().getInstrucao());
 				consolidaValor(aux.getValor(),buffer.getInicio());
 				buffer.removeDoBuffer();
 			}
 			barramentoDeDadosComum.setBusy(false);
 		}
+		System.out.println("Valor de R3 depois = "+registradores[3].getVi());
 	}
 
 	private static void consolidaValor(int valor, int i) {
@@ -814,12 +814,11 @@ public class MIPS {
 		while(filaDeInstrucoes.containsKey(PC)){
 			buffer.decTempoDeExecucao();
 			System.out.println("PC = "+PC);
-			System.out.println("Tamanho do buffer: " + buffer.getNumCelulas());
 			emitir ();
 			executar ();
 			gravar ();
 			consolidar ();
-			buffer.imprimeTodosOsValores();
+			//buffer.imprimeTodosOsValores();
 			clock++;
 		}
 		while(!buffer.isEmpty()){
