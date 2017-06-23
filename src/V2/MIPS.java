@@ -582,8 +582,10 @@ public class MIPS {
 					somaFP[m].setQk(-1);
 				}
 				if(buffer.getItemBuffer(somaFP[m].getDest()).getEstado()=="Emitida" && somaFP[m].getQj() == -1 && somaFP[m].getQk() == -1)
-					if (buffer.getItemBuffer(somaFP[m].getDest()).getTempoDeExecucao() == 0)
+					if (buffer.getItemBuffer(somaFP[m].getDest()).getTempoDeExecucao() == 0){
 						buffer.setEstado(somaFP[m].getDest(),"Executando");
+						buffer.setTempoExecucao(m, 1);
+					}
 			}
 			
 			for (int m = 0; m < multFP.length; m++) {
@@ -596,8 +598,10 @@ public class MIPS {
 					multFP[m].setQk(-1);
 				}
 				if(buffer.getItemBuffer(multFP[m].getDest()).getEstado()=="Emitida" && multFP[m].getQj() == -1 && multFP[m].getQk() == -1)
-					if (buffer.getItemBuffer(multFP[m].getDest()).getTempoDeExecucao() == 0)
+					if (buffer.getItemBuffer(multFP[m].getDest()).getTempoDeExecucao() == 0){
 						buffer.setEstado(multFP[m].getDest(), "Executando");
+						buffer.setTempoExecucao(m, 3);
+					}
 			}
 			
 			for (int m = 0; m < cargaFP.length; m++) {
@@ -611,11 +615,15 @@ public class MIPS {
 				}
 				if (buffer.getItemBuffer(cargaFP[m].getDest()).getEstado()=="Emitida" && cargaFP[m].getQk() == -1){
 					if (cargaFP[m].getInst() == "Store")
-						if (buffer.getItemBuffer(cargaFP[m].getDest()).getTempoDeExecucao() == 0)
+						if (buffer.getItemBuffer(cargaFP[m].getDest()).getTempoDeExecucao() == 0) {
 							buffer.setEstado(cargaFP[m].getDest(), "Executando");
+							buffer.setTempoExecucao(m, 4);
+						}
 					else if (cargaFP[m].getInst() == "Load" && cargaFP[m].getQj() == -1)
-						if (buffer.getItemBuffer(cargaFP[m].getDest()).getTempoDeExecucao() == 0)
+						if (buffer.getItemBuffer(cargaFP[m].getDest()).getTempoDeExecucao() == 0) {
 							buffer.setEstado(cargaFP[m].getDest(), "Executando");
+							buffer.setTempoExecucao(m, 4);
+						}
 				}
 			}
 		}
