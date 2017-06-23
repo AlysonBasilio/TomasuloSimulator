@@ -15,8 +15,9 @@ public class BufferDeReordenacao {
 			buffer[n].setBusy(false);
 		}
 		this.tamanho = tamanho;
-		inicio = 0;
-		fim = 0;
+		this.numCelulasOcupadas = 0;
+		this.inicio = 0;
+		this.fim = 0;
 	}
 	
 	public void adicionaNoBuffer (Instrucao inst, int dest) {
@@ -25,6 +26,7 @@ public class BufferDeReordenacao {
 			buffer[fim].setEstado("Emitida");
 			buffer[fim].setInstrucao(inst);
 			buffer[fim].setDestino(dest);
+			numCelulasOcupadas++;
 			String opcode = inst.getInstrucao().substring(0, 6);
 			String funct = inst.getInstrucao().substring(26);
 			if(opcode == "100011" || opcode == "101011")		//Load/Store
@@ -72,6 +74,20 @@ public class BufferDeReordenacao {
 
 	public void setBusy(int m, boolean b) {
 		buffer[m].setBusy(b);
+	}
+
+	public void imprimeTodosOsValores() {
+		System.out.println("Entrada | Ocupado | Instrução | Estado | Destino | Valor");
+		for(int i=0; i<buffer.length; i++){
+			if(buffer[i].isBusy())
+				System.out.println("B"+i+" | "+buffer[i].isBusy()+" | "+buffer[i].getInstrucao().getInstrucao()+" | "+buffer[i].getEstado()+" | "+buffer[i].getDestino()+" | "+buffer[i].getValor());
+		}
+	}
+
+	public boolean isEmpty() {
+		if(numCelulasOcupadas == 0)
+			return true;
+		return false;
 	}
 	
 }
