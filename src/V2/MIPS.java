@@ -91,7 +91,6 @@ public class MIPS {
 	/* Função que pega uma instrução e manda para a estação de reserva adequada se possível */
 	
 	private static void emitir () {
-		
 		/*Leitura da Instrução a partir da fila de instruções.*/
 		
 		Instrucao instAux = filaDeInstrucoes.get(PC);
@@ -499,12 +498,13 @@ public class MIPS {
 			/*A execução aqui se trata apenas de decrementar o tempo necessário para realizar
 			 *a instrução. Percorre-se todo o buffer de reordenação verificando quem está em
 			 *estado de execução. */
-			if(aux.isBusy() && aux.getEstado() == "Executando" && buffer.getItemBuffer(m).getTempoDeExecucao()==0){
+			if(aux.isBusy() && aux.getEstado() == "Executando" && aux.getTempoDeExecucao()==0){
 				calculaValor(m);
 				buffer.setEstado(m, "Gravando");
 				buffer.setTempoExecucao(m, 1);
 			}
 		}
+		
 	}
 	
 	private static void calculaValor(int posBuffer) {
@@ -543,8 +543,6 @@ public class MIPS {
 	}
 
 	private static void gravar() {
-		buffer.imprimeTodosOsValores();
-		
 		/* Pega a primeira instrução no buffer de reordenação com o status gravando e 
 		 * joga o seu valor no barramento juntamente com o destino  
 		 */
@@ -561,11 +559,12 @@ public class MIPS {
 				barramentoDeDadosComum.setDado(aux.getValor());
 				/*Aqui é setado a posição do Buffer de Reordenação que contêm o resultado da instrução.*/
 				barramentoDeDadosComum.setLocal((buffer.getInicio()+m)%buffer.getTamanho());
-				buffer.setEstado(m, "Consolidando");
-				buffer.setTempoExecucao(m, 1);
+				buffer.setEstado(posicBuffer, "Consolidando");
+				buffer.setTempoExecucao(posicBuffer, 1);
 				break;
 			}
 		}
+		System.out.println("Tempo de Execução B1 = "+buffer.getItemBuffer(1).getTempoDeExecucao());
 		if (barramentoDeDadosComum.isBusy()) {
 			/* Percorre as estações de reserva para verificar se o dado no barramento é 
 			 * utilizado para retirar alguma dependência de alguma estação.
@@ -594,6 +593,7 @@ public class MIPS {
 					multFP[m].setQj(-1);
 				}
 				if (multFP[m].getQk() != -1 && multFP[m].getQk() == barramentoDeDadosComum.getLocal()){
+					System.out.println("Entrou.");
 					multFP[m].setVk(barramentoDeDadosComum.getDado());
 					multFP[m].setQk(-1);
 				}
@@ -629,24 +629,28 @@ public class MIPS {
 		}
 		for (int m = 0; m < somaFP.length; m++) {
 			//System.out.println("somaFP["+m+"] - Estado = "+buffer.getItemBuffer(somaFP[m].getDest()).getEstado()+" - Qj = "+somaFP[m].getQj()+" - Qk = "+somaFP[m].getQk()+" - Busy = "+somaFP[m].isBusy());
-			if(buffer.getItemBuffer(somaFP[m].getDest()).getEstado()=="Emitida" && somaFP[m].getQj() == -1 && somaFP[m].getQk() == -1){
+			if(buffer.getItemBuffer(somaFP[m].getDest()).getEstado()=="Emitida" && somaFP[m].getQj() == -1 && somaFP[m].getQk() == -1 && buffer.getItemBuffer(somaFP[m].getDest()).getTempoDeExecucao() == 0){
 				//System.out.println("Mudança de Estado");
 				buffer.setEstado(somaFP[m].getDest(),"Executando");
+				buffer.setTempoExecucao(m, 1);
 			}
 		}
 		
 		for (int m = 0; m < multFP.length; m++) {
 			//System.out.println("multFP["+m+"] - Estado = "+buffer.getItemBuffer(somaFP[m].getDest()).getEstado()+" - Qj = "+somaFP[m].getQj()+" - Qk = "+somaFP[m].getQk()+" - Busy = "+somaFP[m].isBusy());
-			if(buffer.getItemBuffer(multFP[m].getDest()).getEstado()=="Emitida" && multFP[m].getQj() == -1 && multFP[m].getQk() == -1)
+			if(buffer.getItemBuffer(multFP[m].getDest()).getEstado()=="Emitida" && multFP[m].getQj() == -1 && multFP[m].getQk() == -1 && buffer.getItemBuffer(multFP[m].getDest()).getTempoDeExecucao() == 0){
 				buffer.setEstado(multFP[m].getDest(), "Executando");
+				buffer.setTempoExecucao(m, 3);
+			}
 		}
 		
 		for (int m = 0; m < cargaFP.length; m++) {
-			if (buffer.getItemBuffer(cargaFP[m].getDest()).getEstado()=="Emitida" && cargaFP[m].getQk() == -1){
+			if (buffer.getItemBuffer(cargaFP[m].getDest()).getEstado()=="Emitida" && cargaFP[m].getQk() == -1 && buffer.getItemBuffer(cargaFP[m].getDest()).getTempoDeExecucao() == 0){
 				if (cargaFP[m].getInst() == "Store")
 					buffer.setEstado(cargaFP[m].getDest(), "Executando");
 				else if (cargaFP[m].getInst() == "Load" && cargaFP[m].getQj() == -1)
 					buffer.setEstado(cargaFP[m].getDest(), "Executando");
+				buffer.setTempoExecucao(m, 4);
 			}
 		}
 	}
@@ -676,6 +680,7 @@ public class MIPS {
 		 * grava o seu valor no registrador destino.  
 		 */
 		celulaDeReordenacao aux = buffer.getItemBuffer(buffer.getInicio());
+		System.out.println("Tempo de Execução = "+aux.getTempoDeExecucao());
 		if (aux.isBusy() && aux.getEstado() == "Consolidando" && aux.getTempoDeExecucao() == 0){
 			if(aux.getInstrucao().getInstrucao().substring(0, 4) == "000101"){
 				if (aux.getValor() == 0)
@@ -814,6 +819,7 @@ public class MIPS {
 			executar ();
 			gravar ();
 			consolidar ();
+			buffer.imprimeTodosOsValores();
 			clock++;
 		}
 		while(!buffer.isEmpty()){

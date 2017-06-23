@@ -29,14 +29,6 @@ public class BufferDeReordenacao {
 			buffer[fim].setDestino(dest);
 			buffer[fim].setTempoDeExecucao(1);
 			numCelulasOcupadas++;
-			String opcode = inst.getInstrucao().substring(0, 6);
-			String funct = inst.getInstrucao().substring(26);
-			if(opcode == "100011" || opcode == "101011")		//Load/Store
-				buffer[fim].setTempoDeExecucao(4);
-			else if (opcode == "000000" && funct == "011000")	//Mult
-				buffer[fim].setTempoDeExecucao(3);
-			else 												//Outros
-				buffer[fim].setTempoDeExecucao(1);
 			fim = (fim+1)%tamanho;
 	}
 	
@@ -71,9 +63,12 @@ public class BufferDeReordenacao {
 	public void setTempoExecucao (int i, int tempo) { buffer[i].setTempoDeExecucao(tempo); }
 	
 	public void decTempoDeExecucao() {
-		for (int m = 0; m < tamanho; m++)
+		for (int m = 0; m < tamanho; m++){
+			//System.out.println("Tempo de Execucao B"+m+" = "+buffer[m].getTempoDeExecucao());
 			if (buffer[m].getTempoDeExecucao() > 0)
 				buffer[m].decTempoDeExecucao();
+			//System.out.println("Tempo de Execucao B"+m+" = "+buffer[m].getTempoDeExecucao());
+		}
 	}
 
 	public void setValor(int posBuffer, int valor) {
