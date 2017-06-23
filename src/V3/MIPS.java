@@ -1,4 +1,4 @@
-package V2;
+package V3;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -33,7 +33,7 @@ public class MIPS {
 	
 	/* Lê dados do arquivo e coloca na fila de instruções */
 	private static void preencheFilaDeInstrucoes () {
-		String nome = "Teste";
+		String nome = "Teste1";
 		int auxPC = 0;
 		
 		try {
@@ -369,8 +369,8 @@ public class MIPS {
 					somaFP[indice].setVk(registradores[regRT].getVi());
 					somaFP[indice].setQk(-1);
 				}
-				somaFP[indice].setA(PC+4);
-				PC=decImm;
+				somaFP[indice].setA(decImm);
+				PC+=4;
 			}
 			System.out.println("ble R"+regRT+",R"+regRS+","+decImm);
 			break;
@@ -697,12 +697,12 @@ public class MIPS {
 				}
 			}
 			else if(aux.getInstrucao().getInstrucao().substring(0, 6).equals("000111")){
-				if (aux.getValor() <= 0)
+				if (aux.getValor() > 0)
 					buffer.removeDoBuffer();
 				else {
 					PC = consultaEstacao(buffer.getInicio()).getA();
-					buffer.removeDoBuffer();
 					limpaTudo ();
+					buffer.removeDoBuffer();
 				}
 			}
 			else if(aux.getInstrucao().getInstrucao().substring(0, 6).equals("000100")){
@@ -776,8 +776,9 @@ public class MIPS {
 		for (int m = 0; m < cargaFP.length; m++)
 			cargaFP[m].setBusy(false);
 		
-		for (int m = 0; m < buffer.getTamanho(); m++)
-			buffer.setBusy(m, false);
+		while(!buffer.isEmpty()){
+			buffer.removeDoBuffer();
+		}
 		
 	}
 	
@@ -820,6 +821,7 @@ public class MIPS {
 		for(int i = 0; i<32; i++){
 			registradores[i] = new Registrador();
 			registradores[i].setVi(0);
+			registradores[i].setQi(-1);
 		}
 		
 		/* clocks */

@@ -18,7 +18,7 @@ public class MIPS {
 			MEM[i]=0;
 		}
 		
-		String nome = "Teste";
+		String nome = "Teste1";
 		/*Configuração 1*/
 		//Registradores[1].setValor(3);
 		/*Configuração 2*/
@@ -151,7 +151,7 @@ public class MIPS {
 			}
 			
 		}
-		for(int i=0; i<7; i++)
+		for(int i=0; i<11; i++)
 			System.out.println("Valor de R"+i+" = "+ Registradores[i].getVi());
 			
 	}
