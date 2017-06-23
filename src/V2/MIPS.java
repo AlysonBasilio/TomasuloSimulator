@@ -499,11 +499,10 @@ public class MIPS {
 			/*A execução aqui se trata apenas de decrementar o tempo necessário para realizar
 			 *a instrução. Percorre-se todo o buffer de reordenação verificando quem está em
 			 *estado de execução. */
-			if (aux.isBusy() && aux.getEstado() == "Executando"){
-				buffer.decTempoDeExecucao(m);
-				if(buffer.getItemBuffer(m).getTempoDeExecucao()==0){
-					calculaValor(m);
-				}
+			if(aux.isBusy() && aux.getEstado() == "Executando" && buffer.getItemBuffer(m).getTempoDeExecucao()==0){
+				calculaValor(m);
+				buffer.setEstado(m, "Gravando");
+				buffer.setTempoExecucao(m, 1);
 			}
 		}
 	}
@@ -553,7 +552,7 @@ public class MIPS {
 		for (int m = 0; m < buffer.getTamanho(); m++) {
 			posicBuffer = (buffer.getInicio()+m)%buffer.getTamanho();
 			celulaDeReordenacao aux = buffer.getItemBuffer(posicBuffer);
-			if (aux.isBusy() && aux.getEstado() == "Gravando"){
+			if (aux.isBusy() && aux.getEstado() == "Gravando" && aux.getTempoDeExecucao() == 0){
 				System.out.println("Gravando B"+posicBuffer);
 				buffer.setReady(posicBuffer,true);
 				if (buffer.getItemBuffer(posicBuffer).getInstrucao().getInstrucao().substring(0, 6) != "101011")
@@ -562,6 +561,8 @@ public class MIPS {
 				barramentoDeDadosComum.setDado(aux.getValor());
 				/*Aqui é setado a posição do Buffer de Reordenação que contêm o resultado da instrução.*/
 				barramentoDeDadosComum.setLocal((buffer.getInicio()+m)%buffer.getTamanho());
+				buffer.setEstado(m, "Consolidando");
+				buffer.setTempoExecucao(m, 1);
 				break;
 			}
 		}
@@ -581,7 +582,8 @@ public class MIPS {
 					somaFP[m].setQk(-1);
 				}
 				if(buffer.getItemBuffer(somaFP[m].getDest()).getEstado()=="Emitida" && somaFP[m].getQj() == -1 && somaFP[m].getQk() == -1)
-					buffer.setEstado(somaFP[m].getDest(),"Executando");
+					if (buffer.getItemBuffer(somaFP[m].getDest()).getTempoDeExecucao() == 0)
+						buffer.setEstado(somaFP[m].getDest(),"Executando");
 			}
 			
 			for (int m = 0; m < multFP.length; m++) {
@@ -594,7 +596,8 @@ public class MIPS {
 					multFP[m].setQk(-1);
 				}
 				if(buffer.getItemBuffer(multFP[m].getDest()).getEstado()=="Emitida" && multFP[m].getQj() == -1 && multFP[m].getQk() == -1)
-					buffer.setEstado(multFP[m].getDest(), "Executando");
+					if (buffer.getItemBuffer(multFP[m].getDest()).getTempoDeExecucao() == 0)
+						buffer.setEstado(multFP[m].getDest(), "Executando");
 			}
 			
 			for (int m = 0; m < cargaFP.length; m++) {
@@ -608,9 +611,11 @@ public class MIPS {
 				}
 				if (buffer.getItemBuffer(cargaFP[m].getDest()).getEstado()=="Emitida" && cargaFP[m].getQk() == -1){
 					if (cargaFP[m].getInst() == "Store")
-						buffer.setEstado(cargaFP[m].getDest(), "Executando");
+						if (buffer.getItemBuffer(cargaFP[m].getDest()).getTempoDeExecucao() == 0)
+							buffer.setEstado(cargaFP[m].getDest(), "Executando");
 					else if (cargaFP[m].getInst() == "Load" && cargaFP[m].getQj() == -1)
-						buffer.setEstado(cargaFP[m].getDest(), "Executando");
+						if (buffer.getItemBuffer(cargaFP[m].getDest()).getTempoDeExecucao() == 0)
+							buffer.setEstado(cargaFP[m].getDest(), "Executando");
 				}
 			}
 		}
@@ -659,19 +664,11 @@ public class MIPS {
 	}
 	
 	private static void consolidar() {
-		/* Primeiro verificaremos se alguma instrução passou de executando para gravando.*/
-		for (int m = 0; m < buffer.getTamanho(); m++) {
-			celulaDeReordenacao aux = buffer.getItemBuffer(m);
-			if (aux.isBusy() && aux.getEstado() == "Executando" && aux.getTempoDeExecucao()==0){
-				buffer.setEstado(m, "Gravando");
-				System.out.println("Gravando B"+m);
-			}
-		}
 		/* Pega a primeira instrução no buffer de reordenação com o status consolidando e 
 		 * grava o seu valor no registrador destino.  
 		 */
 		celulaDeReordenacao aux = buffer.getItemBuffer(buffer.getInicio());
-		if (aux.isBusy() && aux.getEstado() == "Consolidando"){
+		if (aux.isBusy() && aux.getEstado() == "Consolidando" && aux.getTempoDeExecucao() == 0){
 			if(aux.getInstrucao().getInstrucao().substring(0, 4) == "000101"){
 				if (aux.getValor() == 0)
 					buffer.removeDoBuffer();
@@ -802,6 +799,7 @@ public class MIPS {
 		preencheFilaDeInstrucoes ();
 		
 		while(filaDeInstrucoes.containsKey(PC)){
+			buffer.decTempoDeExecucao();
 			System.out.println("PC = "+PC);
 			System.out.println("Tamanho do buffer: " + buffer.getNumCelulas());
 			emitir ();
@@ -811,6 +809,7 @@ public class MIPS {
 			clock++;
 		}
 		while(!buffer.isEmpty()){
+			buffer.decTempoDeExecucao();
 			System.out.println("PC = "+PC);
 			executar ();
 			gravar ();

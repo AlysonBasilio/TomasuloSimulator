@@ -13,6 +13,7 @@ public class BufferDeReordenacao {
 		for (int n = 0; n < tamanho; n++){
 			buffer[n] = new celulaDeReordenacao ();
 			buffer[n].setBusy(false);
+			buffer[n].setTempoDeExecucao(0);
 		}
 		this.tamanho = tamanho;
 		this.numCelulasOcupadas = 0;
@@ -26,6 +27,7 @@ public class BufferDeReordenacao {
 			buffer[fim].setEstado("Emitida");
 			buffer[fim].setInstrucao(inst);
 			buffer[fim].setDestino(dest);
+			buffer[fim].setTempoDeExecucao(1);
 			numCelulasOcupadas++;
 			String opcode = inst.getInstrucao().substring(0, 6);
 			String funct = inst.getInstrucao().substring(26);
@@ -65,9 +67,13 @@ public class BufferDeReordenacao {
 	}
 
 	public void setEstado(int i, String estado) { buffer[i].setEstado(estado); }
-
-	public void decTempoDeExecucao(int m) {
-		buffer[m].decTempoDeExecucao();
+	
+	public void setTempoExecucao (int i, int tempo) { buffer[i].setTempoDeExecucao(tempo); }
+	
+	public void decTempoDeExecucao() {
+		for (int m = 0; m < tamanho; m++)
+			if (buffer[m].getTempoDeExecucao() > 0)
+				buffer[m].decTempoDeExecucao();
 	}
 
 	public void setValor(int posBuffer, int valor) {
