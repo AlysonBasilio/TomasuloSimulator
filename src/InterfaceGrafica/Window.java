@@ -90,7 +90,7 @@ public class Window {
 		table.setColumnSelectionAllowed(true);
 		table.setCellSelectionEnabled(true);
 		table.setSurrendersFocusOnKeystroke(true);
-		table.setToolTipText("Esta\u00E7\u00F5es de Reserva");
+		table.setToolTipText("Estações de Reserva");
 		table.setModel(new DefaultTableModel(
 			new Object[][] {
 				{"", "", "", "", "", "", "", "", "", ""},
@@ -101,7 +101,7 @@ public class Window {
 				{null, null, null, null, null, null, null, null, null, null},
 			},
 			new String[] {
-				"ID", "Tipo", "Busy", "Instru\u00E7\u00E3o", "Dets.", "Vj", "Vk", "Qj", "Qk", "A"
+				"ID", "Tipo", "Busy", "Instrução", "Dets.", "Vj", "Vk", "Qj", "Qk", "A"
 			}
 		));
 		table.getColumnModel().getColumn(0).setResizable(false);
@@ -134,14 +134,14 @@ public class Window {
 				{null, null, null, null, null, null},
 			},
 			new String[] {
-				"Entrada", "Ocupado", "instru\u00E7\u00E3o", "Estado", "Destino", "Valor"
+				"Entrada", "Ocupado", "Instrução", "Estado", "Destino", "Valor"
 			}
 		));
 		table_1.setBounds(0, 193, 420, 223);
 		frame.getContentPane().add(table_1);
 		
 		JFormattedTextField frmtdtxtfldBufferDe = new JFormattedTextField();
-		frmtdtxtfldBufferDe.setText("Buffer de Reordena\u00E7\u00E3o");
+		frmtdtxtfldBufferDe.setText("Buffer de Reordenação");
 		frmtdtxtfldBufferDe.setHorizontalAlignment(SwingConstants.CENTER);
 		frmtdtxtfldBufferDe.setFont(new Font("Arial", Font.PLAIN, 12));
 		frmtdtxtfldBufferDe.setBackground(Color.WHITE);
@@ -159,10 +159,10 @@ public class Window {
 		table_2 = new JTable();
 		table_2.setModel(new DefaultTableModel(
 			new Object[][] {
-				{"Entrada", "Ocupado", "Instru\u00E7\u00E3o", "Estado", "Destino", "Valor"},
+				{"Entrada", "Ocupado", "Instrução", "Estado", "Destino", "Valor"},
 			},
 			new String[] {
-				"Entrada", "Ocupado", "Instru\u00E7\u00E3o", "Estado", "Destino", "Valor"
+				"Entrada", "Ocupado", "Instrução", "Estado", "Destino", "Valor"
 			}
 		));
 		table_2.setBounds(0, 175, 420, 20);
