@@ -21,6 +21,8 @@ public class BufferDeReordenacao {
 		this.fim = 0;
 	}
 	
+	public void setAddress(int posic, int address) { buffer[posic].setAddress(address); }
+	
 	public void adicionaNoBuffer (Instrucao inst, int dest) {
 			buffer[fim].setBusy(true);
 			buffer[fim].setReady(false);
@@ -34,6 +36,7 @@ public class BufferDeReordenacao {
 	
 	public void removeDoBuffer () {
 		buffer[inicio].setBusy(false);
+		buffer[inicio].setValor(0);
 		numCelulasOcupadas--;
 		inicio = (inicio+1)%tamanho;
 	}

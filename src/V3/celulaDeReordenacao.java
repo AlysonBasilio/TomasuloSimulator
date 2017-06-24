@@ -9,7 +9,11 @@ public class celulaDeReordenacao {
 	private int destino;
 	private int valor;
 	private int tempoDeExecucao;
+	private int address;
 	
+	public int getAddress() { return address; }
+	public void setAddress(int address) { this.address = address; }
+
 	public void decTempoDeExecucao () { this.tempoDeExecucao--; }
 	
 	public boolean isReady() { return ready; }

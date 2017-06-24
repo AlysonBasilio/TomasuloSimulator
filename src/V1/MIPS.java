@@ -18,7 +18,7 @@ public class MIPS {
 			MEM[i]=0;
 		}
 		
-		String nome = "Teste1";
+		String nome = "Teste";
 		/*Configuração 1*/
 		//Registradores[1].setValor(3);
 		/*Configuração 2*/

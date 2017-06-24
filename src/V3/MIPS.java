@@ -3,7 +3,6 @@ package V3;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 
 public class MIPS {
@@ -14,9 +13,6 @@ public class MIPS {
 	private static EstacaoDeReserva[] somaFP;
 	private static EstacaoDeReserva[] multFP;
 	private static EstacaoDeReserva[] cargaFP;
-	private static int numElemSoma;
-	private static int numElemMult;
-	private static int numElemCarga;
 	
 	/* Fila de instruções */
 	static HashMap<Integer, Instrucao> filaDeInstrucoes;
@@ -33,7 +29,7 @@ public class MIPS {
 	
 	/* Lê dados do arquivo e coloca na fila de instruções */
 	private static void preencheFilaDeInstrucoes () {
-		String nome = "Teste1";
+		String nome = "Teste";
 		int auxPC = 0;
 		
 		try {
@@ -123,7 +119,6 @@ public class MIPS {
 				//Função Add
 				case "100000":
 					indice = verificaEstacao ("Add");
-					//System.out.println("Indice = "+indice);
 					/*Se a estação de reserva e o Buffer de reordenação não estiverem cheios,
 					 *acontecerá a emissão da instrução.
 					 *A variável indice tem uma posicao vazia da Estação de Reserva.*/
@@ -330,8 +325,8 @@ public class MIPS {
 					somaFP[indice].setVk(registradores[regRT].getVi());
 					somaFP[indice].setQk(-1);
 				}
-				somaFP[indice].setA(PC+4);
-				PC+=4 + decImm;
+				buffer.setAddress(somaFP[indice].getDest(), PC+4+decImm);
+				PC+=4;
 			}
 			System.out.println("beq R"+regRT+",R"+regRS+","+decImm);
 			break;
@@ -369,7 +364,7 @@ public class MIPS {
 					somaFP[indice].setVk(registradores[regRT].getVi());
 					somaFP[indice].setQk(-1);
 				}
-				somaFP[indice].setA(decImm);
+				buffer.setAddress(somaFP[indice].getDest(), decImm);
 				PC+=4;
 			}
 			System.out.println("ble R"+regRT+",R"+regRS+","+decImm);
@@ -408,8 +403,8 @@ public class MIPS {
 					somaFP[indice].setVk(registradores[regRT].getVi());
 					somaFP[indice].setQk(-1);
 				}
-				somaFP[indice].setA(PC+4);
-				PC+=4+decImm;
+				buffer.setAddress(somaFP[indice].getDest(), PC+4+decImm);
+				PC+=4;
 			}
 			System.out.println("bne R"+regRT+",R"+regRS+","+decImm);
 			break;
@@ -496,13 +491,16 @@ public class MIPS {
 	private static void executar () {
 		for (int m = 0; m < buffer.getTamanho(); m++) {
 			celulaDeReordenacao aux = buffer.getItemBuffer(m);
-			/*A execução aqui se trata apenas de decrementar o tempo necessário para realizar
-			 *a instrução. Percorre-se todo o buffer de reordenação verificando quem está em
-			 *estado de execução. */
-			if(aux.isBusy() && aux.getEstado() == "Executando" && aux.getTempoDeExecucao()==0){
-				calculaValor(m);
-				buffer.setEstado(m, "Gravando");
-				buffer.setTempoExecucao(m, 1);
+			if(aux.isBusy()){
+				/*A execução aqui se trata apenas de decrementar o tempo necessário para realizar
+				 *a instrução. Percorre-se todo o buffer de reordenação verificando quem está em
+				 *estado de execução. */
+				//System.out.println("****** "+aux.getTempoDeExecucao());
+				if(aux.isBusy() && aux.getEstado() == "Executando" && aux.getTempoDeExecucao()==0){
+					calculaValor(m);
+					buffer.setEstado(m, "Gravando");
+					buffer.setTempoExecucao(m, 1);
+				}
 			}
 		}
 		
@@ -512,8 +510,10 @@ public class MIPS {
 		
 		for (int m = 0; m < somaFP.length; m++) {
 			if(somaFP[m].isBusy() && somaFP[m].getDest()==posBuffer){
-				if(somaFP[m].getInst()=="Add")
+				if(somaFP[m].getInst()=="Add"){
 					buffer.setValor(posBuffer, somaFP[m].getVj()+somaFP[m].getVk());
+					System.out.println("Executando soma "+somaFP[m].getVj()+"+"+somaFP[m].getVk());
+				}
 				else if(somaFP[m].getInst()=="Sub" || somaFP[m].getInst()=="Bne" || somaFP[m].getInst()=="Ble" || somaFP[m].getInst()=="Beq"){
 					buffer.setValor(posBuffer, somaFP[m].getVj()-somaFP[m].getVk());
 					//System.out.println("Inst = "+somaFP[m].getInst()+" | Valor = "+(somaFP[m].getVj()-somaFP[m].getVk()));
@@ -560,7 +560,7 @@ public class MIPS {
 			celulaDeReordenacao aux = buffer.getItemBuffer(posicBuffer);
 			if (aux.isBusy() && aux.getEstado() == "Gravando" && aux.getTempoDeExecucao() == 0){
 				buffer.setReady(posicBuffer,true);
-				if (buffer.getItemBuffer(posicBuffer).getInstrucao().getInstrucao().substring(0, 6) != "101011")
+				if (buffer.getItemBuffer(posicBuffer).getInstrucao().getInstrucao().substring(0, 6) != "101011" && buffer.getItemBuffer(posicBuffer).getInstrucao().getInstrucao().substring(0, 6) != "000111")
 					liberaEstacao(posicBuffer);
 				barramentoDeDadosComum.setBusy(true);
 				barramentoDeDadosComum.setDado(aux.getValor());
@@ -577,6 +577,8 @@ public class MIPS {
 			 * Caso as dependências deixem de existir, o estado da instrução passa de 
 			 * emitida para executando.
 			 */
+			System.out.println("***Dado no Barramento de dados***");
+			System.out.println("dado = "+barramentoDeDadosComum.getDado()+" origem = "+barramentoDeDadosComum.getLocal());
 			for (int m = 0; m < somaFP.length; m++) {
 				if (somaFP[m].getQj() != -1 && somaFP[m].getQj() == barramentoDeDadosComum.getLocal()){
 					somaFP[m].setVj(barramentoDeDadosComum.getDado());
@@ -646,6 +648,7 @@ public class MIPS {
 			if(buffer.getItemBuffer(multFP[m].getDest()).getEstado()=="Emitida" && multFP[m].getQj() == -1 && multFP[m].getQk() == -1 && buffer.getItemBuffer(multFP[m].getDest()).getTempoDeExecucao() == 0){
 				buffer.setEstado(multFP[m].getDest(), "Executando");
 				buffer.setTempoExecucao(m, 3);
+				//System.out.println("Setou tempo de execução do mult!");
 			}
 		}
 		
@@ -691,7 +694,7 @@ public class MIPS {
 				if (aux.getValor() == 0)
 					buffer.removeDoBuffer();
 				else {
-					PC = consultaEstacao(aux.getDestino()).getA();
+					PC = aux.getAddress();
 					buffer.removeDoBuffer();
 					limpaTudo ();
 				}
@@ -700,7 +703,8 @@ public class MIPS {
 				if (aux.getValor() > 0)
 					buffer.removeDoBuffer();
 				else {
-					PC = consultaEstacao(buffer.getInicio()).getA();
+					System.out.println("Inicio "+consultaEstacao(buffer.getInicio()));
+					PC = aux.getAddress();
 					limpaTudo ();
 					buffer.removeDoBuffer();
 				}
@@ -709,7 +713,7 @@ public class MIPS {
 				if (aux.getValor() != 0)
 					buffer.removeDoBuffer();
 				else {
-					PC = consultaEstacao(aux.getDestino()).getA();
+					PC = aux.getAddress();
 					buffer.removeDoBuffer();
 					limpaTudo ();
 				}
@@ -722,8 +726,8 @@ public class MIPS {
 				consolidaValor(aux.getValor(),buffer.getInicio());
 				buffer.removeDoBuffer();
 			}
-			barramentoDeDadosComum.setBusy(false);
 		}
+		barramentoDeDadosComum.setBusy(false);
 	}
 
 	private static void consolidaStore(int posBuffer) {
@@ -760,24 +764,37 @@ public class MIPS {
 		for (int m = 0; m < cargaFP.length; m++)
 			if (cargaFP[m].getDest() == dest)
 				return cargaFP[m];
-		
 		return null;
 		
 	}
 	
 	public static void limpaTudo () {
 		
-		for (int m = 0; m < somaFP.length; m++)
+		for (int m = 0; m < somaFP.length; m++){
 			somaFP[m].setBusy(false);
+			somaFP[m].setQj(-1);
+			somaFP[m].setQk(-1);
+		}
 
-		for (int m = 0; m < multFP.length; m++)
+		for (int m = 0; m < multFP.length; m++){
 			multFP[m].setBusy(false);
+			multFP[m].setQj(-1);
+			multFP[m].setQk(-1);
+		}
 
-		for (int m = 0; m < cargaFP.length; m++)
+		for (int m = 0; m < cargaFP.length; m++){
 			cargaFP[m].setBusy(false);
+			cargaFP[m].setQj(-1);
+			cargaFP[m].setQk(-1);
+		}
 		
 		while(!buffer.isEmpty()){
 			buffer.removeDoBuffer();
+		}
+		
+		for (int m = 0; m < registradores.length; m++){
+			registradores[m].setQi(-1);
+			registradores[m].setBusy(false);
 		}
 		
 	}
@@ -788,14 +805,20 @@ public class MIPS {
 		filaDeInstrucoes = new HashMap<Integer, Instrucao> ();
 		PC = 0;
 		
-		buffer = new BufferDeReordenacao (6);
+		buffer = new BufferDeReordenacao (10);
 		
 		barramentoDeDadosComum = new Barramento ();
 		
-		somaFP = new EstacaoDeReserva[5];
-		multFP = new EstacaoDeReserva[5];
+		somaFP = new EstacaoDeReserva[3];
+		multFP = new EstacaoDeReserva[3];
 		cargaFP = new EstacaoDeReserva[5];
 		for(int i = 0; i<5; i++){
+			cargaFP[i] = new EstacaoDeReserva ();
+			cargaFP[i].setBusy(false);
+			cargaFP[i].setTipo("Load/Store");
+			cargaFP[i].setID("L/S" + i);
+		}
+		for(int i = 0; i<3; i++){
 			somaFP[i] = new EstacaoDeReserva ();
 			somaFP[i].setBusy(false);
 			somaFP[i].setTipo("Add");
@@ -804,20 +827,15 @@ public class MIPS {
 			multFP[i].setBusy(false);
 			multFP[i].setTipo("Mult");
 			multFP[i].setID("Mul" + i);
-			cargaFP[i] = new EstacaoDeReserva ();
-			cargaFP[i].setBusy(false);
-			cargaFP[i].setTipo("Load/Store");
-			cargaFP[i].setID("L/S" + i);
 		}
-		numElemSoma = 0;
-		numElemMult = 0;
-		numElemCarga = 0;
 		
 		MEM = new int[4096];
 		for(int i = 0; i<4096; i++){
 			MEM[i]=0;
 		}
+		
 		registradores = new Registrador[32];
+		
 		for(int i = 0; i<32; i++){
 			registradores[i] = new Registrador();
 			registradores[i].setVi(0);
@@ -845,6 +863,10 @@ public class MIPS {
 			for(int i=0; i<7; i++)
 				System.out.println("Valor de R"+i+" = "+ registradores[i].getVi()+
 						" - Dep. de R"+i+" = "+registradores[i].getQi());
+			for(int i=0; i<3; i++)
+				if(somaFP[i].isBusy())
+					System.out.println("sFP"+i+" = "+ somaFP[i].getTipo()+
+						" - Dep. de sFP"+i+" = "+somaFP[i].getInst());
 			clock++;
 		}
 		/*while(!buffer.isEmpty()){
