@@ -1,39 +1,44 @@
-package V3;
+package InterfaceGrafica;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class MIPS {
 	
-	private static Barramento barramentoDeDadosComum;
+private static Barramento barramentoDeDadosComum;
 	
 	/* Estações de reserva */
-	private static EstacaoDeReserva[] somaFP;
-	private static EstacaoDeReserva[] multFP;
-	private static EstacaoDeReserva[] cargaFP;
+	public static EstacaoDeReserva[] somaFP;
+	public static EstacaoDeReserva[] multFP;
+	public static EstacaoDeReserva[] cargaFP;
 	
 	/* Fila de instruções */
 	static HashMap<Integer, Instrucao> filaDeInstrucoes;
-	private static int PC;
+	public static int PC;
 	
 	/* Registradores */
-	private static Registrador[] registradores;
+	public static Registrador[] registradores;
 	
 	/* Memória */
 	private static int[] MEM;
 	
 	/* Buffer de Reordenação */
-	private static BufferDeReordenacao buffer;
+	public static BufferDeReordenacao buffer;
+	
+	public static int clock;
+	public static File file;
 	
 	/* Lê dados do arquivo e coloca na fila de instruções */
 	private static void preencheFilaDeInstrucoes () {
-		String nome = "Teste";
+		//String nome = "Teste";
 		int auxPC = 0;
 		
 		try {
-	    	FileReader arq = new FileReader(nome);
+	    	FileReader arq = new FileReader(file);
 	    	BufferedReader lerArq = new BufferedReader(arq);
 	 
 	    	String instAux = lerArq.readLine(); // lê a primeira instrução
@@ -171,12 +176,12 @@ public class MIPS {
 						/*Após emitir a instrução, deve-se atualizar o valor de PC.*/
 						PC+=4;
 					}
-					System.out.println("add R"+regRD+",R"+regRS+",R"+regRT);
+					//System.out.println("add R"+regRD+",R"+regRS+",R"+regRT);
 					break;
 				//Função Mul
 				case "011000":
 					indice = verificaEstacao ("Mult");
-					System.out.println("mul R"+regRD+",R"+regRS+",R"+regRT);
+					//System.out.println("mul R"+regRD+",R"+regRS+",R"+regRT);
 					if(indice != -1 && !buffer.isFull()) { 
 						multFP[indice].setBusy(true);
 						multFP[indice].setInst("Mul");
@@ -251,11 +256,11 @@ public class MIPS {
 						registradores[regRD].setBusy(true);
 						PC+=4;
 					}
-					System.out.println("sub R"+regRD+",R"+regRS+",R"+regRT);
+					//System.out.println("sub R"+regRD+",R"+regRS+",R"+regRT);
 					break;
 				//Função Nop
 				case "000000":
-					System.out.println("nop");
+					//System.out.println("nop");
 					PC+=4;
 					break;
 			};
@@ -289,7 +294,7 @@ public class MIPS {
 				registradores[regRT].setBusy(true);
 				PC+=4;
 			}
-			System.out.println("addi R"+regRT+",R"+regRS+","+decImm);
+			//System.out.println("addi R"+regRT+",R"+regRS+","+decImm);
 			break;
 		//Instrução Beq
 		case "000101":
@@ -328,7 +333,7 @@ public class MIPS {
 				buffer.setAddress(somaFP[indice].getDest(), PC+4+decImm);
 				PC+=4;
 			}
-			System.out.println("beq R"+regRT+",R"+regRS+","+decImm);
+			//System.out.println("beq R"+regRT+",R"+regRS+","+decImm);
 			break;
 		//Instrução Ble
 		case "000111":
@@ -367,7 +372,7 @@ public class MIPS {
 				buffer.setAddress(somaFP[indice].getDest(), decImm);
 				PC+=4;
 			}
-			System.out.println("ble R"+regRT+",R"+regRS+","+decImm);
+			//System.out.println("ble R"+regRT+",R"+regRS+","+decImm);
 			break;
 		//Instrução Bne
 		case "000100":
@@ -406,11 +411,11 @@ public class MIPS {
 				buffer.setAddress(somaFP[indice].getDest(), PC+4+decImm);
 				PC+=4;
 			}
-			System.out.println("bne R"+regRT+",R"+regRS+","+decImm);
+			//System.out.println("bne R"+regRT+",R"+regRS+","+decImm);
 			break;
 		//Instrução Jmp
 		case "000010":
-			System.out.println("jmp "+tA);				
+			//System.out.println("jmp "+tA);				
 			PC = tA;
 			break;
 		//Instrução Lw
@@ -439,7 +444,7 @@ public class MIPS {
 				registradores[regRT].setBusy(true);
 				PC+=4;
 			}
-			System.out.println("lw R"+regRT+","+decImm+"(R"+regRS+")");
+			//System.out.println("lw R"+regRT+","+decImm+"(R"+regRS+")");
 			break;
 		//Instrução Sw
 		case "101011":
@@ -452,7 +457,7 @@ public class MIPS {
 				if (registradores[regRS].isBusy()) {  
 					destinoBuffer = registradores[regRS].getQi();
 					if (buffer.getItemBuffer(destinoBuffer).isReady()) {
-						System.out.println("Entrou aqui!!");
+						//System.out.println("Entrou aqui!!");
 						cargaFP[indice].setVj(buffer.getItemBuffer(destinoBuffer).getValor());
 						cargaFP[indice].setQj(-1);  
 					}
@@ -479,7 +484,7 @@ public class MIPS {
 				cargaFP[indice].setA(decImm);
 				PC+=4;
 			}
-			System.out.println("sw R"+regRT+","+decImm+"(R"+regRS+")");
+			//System.out.println("sw R"+regRT+","+decImm+"(R"+regRS+")");
 			break;
 		default:
 			System.out.println("Comando não interpretado!!!");
@@ -512,7 +517,7 @@ public class MIPS {
 			if(somaFP[m].isBusy() && somaFP[m].getDest()==posBuffer){
 				if(somaFP[m].getInst()=="Add"){
 					buffer.setValor(posBuffer, somaFP[m].getVj()+somaFP[m].getVk());
-					System.out.println("Executando soma "+somaFP[m].getVj()+"+"+somaFP[m].getVk());
+					//System.out.println("Executando soma "+somaFP[m].getVj()+"+"+somaFP[m].getVk());
 				}
 				else if(somaFP[m].getInst()=="Sub" || somaFP[m].getInst()=="Bne" || somaFP[m].getInst()=="Ble" || somaFP[m].getInst()=="Beq"){
 					buffer.setValor(posBuffer, somaFP[m].getVj()-somaFP[m].getVk());
@@ -528,7 +533,7 @@ public class MIPS {
 			if(multFP[m].isBusy() && multFP[m].getDest()==posBuffer){
 				if(multFP[m].getInst()=="Mul"){
 					buffer.setValor(posBuffer, multFP[m].getVj()*multFP[m].getVk());
-					System.out.println("Inst = "+multFP[m].getInst()+" | Valor = "+(multFP[m].getVj()*multFP[m].getVk()));
+					//System.out.println("Inst = "+multFP[m].getInst()+" | Valor = "+(multFP[m].getVj()*multFP[m].getVk()));
 				}
 				return;
 			}
@@ -577,8 +582,8 @@ public class MIPS {
 			 * Caso as dependências deixem de existir, o estado da instrução passa de 
 			 * emitida para executando.
 			 */
-			System.out.println("***Dado no Barramento de dados***");
-			System.out.println("dado = "+barramentoDeDadosComum.getDado()+" origem = "+barramentoDeDadosComum.getLocal());
+			//System.out.println("***Dado no Barramento de dados***");
+			//System.out.println("dado = "+barramentoDeDadosComum.getDado()+" origem = "+barramentoDeDadosComum.getLocal());
 			for (int m = 0; m < somaFP.length; m++) {
 				if (somaFP[m].getQj() != -1 && somaFP[m].getQj() == barramentoDeDadosComum.getLocal()){
 					somaFP[m].setVj(barramentoDeDadosComum.getDado());
@@ -687,15 +692,15 @@ public class MIPS {
 		/* Pega a primeira instrução no buffer de reordenação com o status consolidando e 
 		 * grava o seu valor no registrador destino.  
 		 */
-		System.out.println("Num Cel = "+buffer.getNumCelulas());
 		celulaDeReordenacao aux = buffer.getItemBuffer(buffer.getInicio());
 		if (aux.isBusy() && aux.getEstado() == "Consolidando" && aux.getTempoDeExecucao() == 0){
-			System.out.println("Consolidando B"+buffer.getInicio()+" Inst = "+aux.getInstrucao().getInstrucao().substring(0,6));
+			//System.out.println("Consolidando B"+buffer.getInicio()+" Inst = "+aux.getInstrucao().getInstrucao().substring(0,6));
 			if(aux.getInstrucao().getInstrucao().substring(0, 6).equals("000101")){
 				if (aux.getValor() == 0)
 					buffer.removeDoBuffer();
 				else {
 					PC = aux.getAddress();
+					buffer.removeDoBuffer();
 					limpaTudo ();
 				}
 			}
@@ -703,9 +708,10 @@ public class MIPS {
 				if (aux.getValor() > 0)
 					buffer.removeDoBuffer();
 				else {
-					System.out.println("Inicio "+consultaEstacao(buffer.getInicio()));
+					//System.out.println("Inicio "+consultaEstacao(buffer.getInicio()));
 					PC = aux.getAddress();
 					limpaTudo ();
+					buffer.removeDoBuffer();
 				}
 			}
 			else if(aux.getInstrucao().getInstrucao().substring(0, 6).equals("000100")){
@@ -713,6 +719,7 @@ public class MIPS {
 					buffer.removeDoBuffer();
 				else {
 					PC = aux.getAddress();
+					buffer.removeDoBuffer();
 					limpaTudo ();
 				}
 			}
@@ -740,7 +747,7 @@ public class MIPS {
 	private static void consolidaValor(int valor, int i) {
 		for(int m=1; m<registradores.length; m++){
 			if(registradores[m].getQi() == i){
-				System.out.println("Consolidou em R"+m);
+				//System.out.println("Consolidou em R"+m);
 				registradores[m].setVi(valor);
 				registradores[m].setQi(-1);
 				registradores[m].setBusy(false);
@@ -797,8 +804,7 @@ public class MIPS {
 		
 	}
 	
-	public static void main(String[] args) {
-		
+	public static void initialize(){
 		/* Inicializações do Programa */
 		filaDeInstrucoes = new HashMap<Integer, Instrucao> ();
 		PC = 0;
@@ -842,46 +848,64 @@ public class MIPS {
 		
 		/* clocks */
 		
-		int clock = 0;
+		clock = 0;
 		
 		/* Emissão */
 		
 		preencheFilaDeInstrucoes ();
+	}
+	
+	public static int run1Clock() {
 		
-		while(filaDeInstrucoes.containsKey(PC) || !buffer.isEmpty()){
+		/* Execucao */		
+		if(filaDeInstrucoes.containsKey(PC) || !buffer.isEmpty()){
 			buffer.decTempoDeExecucao();
-			System.out.println("PC = "+PC);
+			//System.out.println("PC = "+PC);
 			if(filaDeInstrucoes.containsKey(PC))
 				emitir ();
 			executar ();
 			gravar ();
 			consolidar ();
+			/*
 			buffer.imprimeTodosOsValores();
 			System.out.println("Num = "+buffer.getNumCelulas());
 			for(int i=0; i<7; i++)
-				System.out.println("Valor de R"+i+" = "+ registradores[i].getVi()+
-						" - Dep. de R"+i+" = "+registradores[i].getQi());
-			for(int i=0; i<3; i++)
-				if(somaFP[i].isBusy())
-					System.out.println("sFP"+i+" = "+ somaFP[i].getTipo()+
-						" - Dep. de sFP"+i+" = "+somaFP[i].getInst());
+				System.out.println("Valor de R"+i+" = "+ registradores[i].getVi());
+			*/
 			clock++;
+			return clock;
 		}
-		/*while(!buffer.isEmpty()){
-			buffer.decTempoDeExecucao();
-			System.out.println("PC = "+PC);
-			executar ();
-			gravar ();
-			consolidar ();
-			buffer.imprimeTodosOsValores();
-			clock++;
-		}*/
+		else return -1;
+		/*
 		System.out.println("Clocks: " + clock );
 		for(int i=0; i<registradores.length; i++)
-			System.out.println("Valor de R"+i+" = "+ registradores[i].getVi()+
-					" - Dep. de R"+i+" = "+registradores[i].getQi());
+			System.out.println("Valor de R"+i+" = "+ registradores[i].getVi());
 		buffer.imprimeTodosOsValores();
 		System.out.println("MEM[4] = "+MEM[4]);
+		*/
+	}
+	public static int run10Clocks(){
+		for(int i = 0; i < 10; i++){
+			/* Execucao */		
+			if(filaDeInstrucoes.containsKey(PC) || !buffer.isEmpty()){
+				buffer.decTempoDeExecucao();
+				//System.out.println("PC = "+PC);
+				if(filaDeInstrucoes.containsKey(PC))
+					emitir ();
+				executar ();
+				gravar ();
+				consolidar ();
+				/*
+				buffer.imprimeTodosOsValores();
+				System.out.println("Num = "+buffer.getNumCelulas());
+				for(int i=0; i<7; i++)
+					System.out.println("Valor de R"+i+" = "+ registradores[i].getVi());
+				*/
+				clock++;
+			}
+			else return -1;
+		}
+		return clock;
 	}
 
 }

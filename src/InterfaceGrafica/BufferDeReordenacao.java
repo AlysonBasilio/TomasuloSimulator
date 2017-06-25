@@ -1,4 +1,4 @@
-package V3;
+package InterfaceGrafica;
 
 public class BufferDeReordenacao {
 	
@@ -84,6 +84,9 @@ public class BufferDeReordenacao {
 
 	public void setBusy(int m, boolean b) {
 		buffer[m].setBusy(b);
+		if(!b){
+			numCelulasOcupadas--;
+		}
 	}
 
 	public void imprimeTodosOsValores() {
@@ -99,3 +102,4 @@ public class BufferDeReordenacao {
 	}
 
 }
+
